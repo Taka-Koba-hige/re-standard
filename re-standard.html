@@ -1,0 +1,2080 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE STANDARD — Web Design & Interactive Simulator</title>
+    <!-- Tailwind CSS (シミュレーター稼働用 / 完成品保存時にはインラインCSSへ自動定着し削除されます) -->
+    <script id="tailwind-cdn-script" src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Noto Sans JP & Shippori Mincho -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600&family=Shippori+Mincho:wght@500;600&display=swap" rel="stylesheet">
+    <script id="tailwind-config-script">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', '"Noto Sans JP"', 'sans-serif'],
+                        serif: ['"Shippori Mincho"', 'serif'],
+                    },
+                    colors: {
+                        canvas: 'var(--bg-canvas)',
+                        ink: 'var(--text-ink)',
+                        muted: 'var(--text-muted)',
+                        line: 'var(--border-line)',
+                        surface: 'var(--bg-surface)',
+                        panel: 'var(--bg-panel)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ==========================================================
+         * ★ OFFLINE-READY STANDALONE CSS ENGINE (No CDN Required)
+         * ========================================================== */
+        *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: var(--border-line); }
+        html { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans CJK JP", "Yu Gothic", sans-serif; }
+        body { margin: 0; line-height: inherit; }
+        hr { height: 0; color: inherit; border-top-width: 1px; }
+        h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; margin: 0; }
+        p, dl, dd, figure, pre { margin: 0; }
+        a { color: inherit; text-decoration: inherit; }
+        b, strong { font-weight: bolder; }
+        code, kbd, samp, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 1em; }
+        small { font-size: 80%; }
+        button, input, optgroup, select, textarea { font-family: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-size: 100%; font-weight: inherit; line-height: inherit; color: inherit; margin: 0; padding: 0; background-color: transparent; background-image: none; }
+        button, select { text-transform: none; }
+        button, [type='button'], [type='reset'], [type='submit'] { -webkit-appearance: button; cursor: pointer; }
+        img, svg, video, canvas, audio, iframe, embed, object { display: block; vertical-align: middle; }
+        img, video { max-width: 100%; height: auto; }
+        [hidden] { display: none; }
+
+        /* Custom Theme Colors & Fonts */
+        body.font-serif-mode h1, body.font-serif-mode h2, body.font-serif-mode h3 {
+            font-family: 'Shippori Mincho', "Hiragino Mincho ProN", "Yu Mincho", "MS PMincho", serif;
+        }
+        .font-sans { font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif; }
+        .font-serif { font-family: 'Shippori Mincho', "Hiragino Mincho ProN", "Yu Mincho", serif; }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+        /* Layout & Display */
+        .block { display: block; }
+        .inline-block { display: inline-block; }
+        .inline { display: inline; }
+        .flex { display: flex; }
+        .inline-flex { display: inline-flex; }
+        .grid { display: grid; }
+        .hidden { display: none !important; }
+        .flex-col { flex-direction: column; }
+        .flex-wrap { flex-wrap: wrap; }
+        .shrink-0 { flex-shrink: 0; }
+        .items-start { align-items: flex-start; }
+        .items-end { align-items: flex-end; }
+        .items-center { align-items: center; }
+        .items-baseline { align-items: baseline; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-around { justify-content: space-around; }
+        .justify-end { justify-content: flex-end; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+
+        /* Positioning */
+        .fixed { position: fixed; }
+        .absolute { position: absolute; }
+        .relative { position: relative; }
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .inset-x-4 { left: 1rem; right: 1rem; }
+        .top-0 { top: 0; }
+        .top-20 { top: 5rem; }
+        .bottom-0 { bottom: 0; }
+        .bottom-3 { bottom: 0.75rem; }
+        .bottom-full { bottom: 100%; }
+        .left-0 { left: 0; }
+        .right-3 { right: 0.75rem; }
+        .z-20 { z-index: 20; }
+        .z-30 { z-index: 30; }
+        .z-40 { z-index: 40; }
+        .z-50 { z-index: 50; }
+        .z-\[60\] { z-index: 60; }
+        .z-\[70\] { z-index: 70; }
+
+        /* Sizing & Aspect Ratio */
+        .w-1\.5 { width: 0.375rem; }
+        .w-4 { width: 1rem; }
+        .w-6 { width: 1.5rem; }
+        .w-52 { width: 13rem; }
+        .w-60 { width: 15rem; }
+        .w-full { width: 100%; }
+        .h-1\.5 { height: 0.375rem; }
+        .h-4 { height: 1rem; }
+        .h-6 { height: 1.5rem; }
+        .h-16 { height: 4rem; }
+        .h-\[36px\] { height: 36px; }
+        .h-full { height: 100%; }
+        .max-w-sm { max-width: 24rem; }
+        .max-w-xl { max-width: 36rem; }
+        .max-w-2xl { max-width: 42rem; }
+        .max-w-3xl { max-width: 48rem; }
+        .max-w-4xl { max-width: 56rem; }
+        .max-w-5xl { max-width: 64rem; }
+        .max-w-full { max-width: 100%; }
+        .max-w-\[calc\(100vw-24px\)\] { max-width: calc(100vw - 24px); }
+        .aspect-\[16\/9\] { aspect-ratio: 16 / 9; }
+        .aspect-\[16\/10\] { aspect-ratio: 16 / 10; }
+
+        /* Spacing, Gaps & Space-Y */
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .mx-0\.5 { margin-left: 0.125rem; margin-right: 0.125rem; }
+        .ml-1 { margin-left: 0.25rem; }
+        .mr-0\.5 { margin-right: 0.125rem; }
+        .mr-1 { margin-right: 0.25rem; }
+        .mt-0\.5 { margin-top: 0.125rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-1\.5 { gap: 0.375rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-2\.5 { gap: 0.625rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-8 { gap: 2rem; }
+        .gap-x-8 { column-gap: 2rem; }
+        .gap-y-12 { row-gap: 3rem; }
+
+        .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem; }
+        .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+        .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+        .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+        .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.25rem; }
+        .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
+        .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: 2rem; }
+        .space-y-10 > :not([hidden]) ~ :not([hidden]) { margin-top: 2.5rem; }
+        .space-y-28 > :not([hidden]) ~ :not([hidden]) { margin-top: 7rem; }
+
+        /* Padding */
+        .p-1\.5 { padding: 0.375rem; }
+        .p-4 { padding: 1rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .px-1\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .px-7 { padding-left: 1.75rem; padding-right: 1.75rem; }
+        .px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-3\.5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+        .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+        .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+        .pt-0\.5 { padding-top: 0.125rem; }
+        .pt-1 { padding-top: 0.25rem; }
+        .pt-2 { padding-top: 0.5rem; }
+        .pt-3 { padding-top: 0.75rem; }
+        .pt-4 { padding-top: 1rem; }
+        .pt-12 { padding-top: 3rem; }
+        .pt-28 { padding-top: 7rem; }
+        .pb-4 { padding-bottom: 1rem; }
+        .pb-28 { padding-bottom: 7rem; }
+
+        /* Typography */
+        .text-\[9px\] { font-size: 9px; }
+        .text-\[10px\] { font-size: 10px; }
+        .text-\[11px\] { font-size: 11px; }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-base { font-size: 1rem; line-height: 1.5rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .leading-none { line-height: 1; }
+        .leading-\[1\.5\] { line-height: 1.5; }
+        .leading-relaxed { line-height: 1.625; }
+        .leading-loose { line-height: 2; }
+        .tracking-wide { letter-spacing: 0.025em; }
+        .tracking-wider { letter-spacing: 0.05em; }
+        .tracking-widest { letter-spacing: 0.1em; }
+        .tracking-\[0\.15em\] { letter-spacing: 0.15em; }
+        .tracking-\[0\.2em\] { letter-spacing: 0.2em; }
+        .tracking-\[0\.25em\] { letter-spacing: 0.25em; }
+        .tracking-\[0\.35em\] { letter-spacing: 0.35em; }
+        .tracking-\[0\.4em\] { letter-spacing: 0.4em; }
+        .uppercase { text-transform: uppercase; }
+        .underline { text-decoration-line: underline; }
+        .underline-offset-4 { text-underline-offset: 4px; }
+        .text-left { text-align: left; }
+        .text-center { text-align: center; }
+        .whitespace-nowrap { white-space: nowrap; }
+        .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* Colors & Backgrounds */
+        .text-ink { color: var(--text-ink); }
+        .text-canvas { color: var(--bg-canvas); }
+        .text-muted { color: var(--text-muted); }
+        .text-muted\/70 { color: color-mix(in srgb, var(--text-muted) 70%, transparent); }
+        .text-muted\/25 { color: color-mix(in srgb, var(--text-muted) 25%, transparent); }
+        .text-line { color: var(--border-line); }
+        .text-red-600 { color: #dc2626; }
+        .text-\[#171717\] { color: #171717; }
+        .text-\[#26231e\] { color: #26231e; }
+        .text-\[#f0eee9\] { color: #f0eee9; }
+        .text-\[#f4f4f0\] { color: #f4f4f0; }
+
+        .bg-canvas { background-color: var(--bg-canvas); }
+        .bg-canvas\/90 { background-color: color-mix(in srgb, var(--bg-canvas) 90%, transparent); }
+        .bg-surface { background-color: var(--bg-surface); }
+        .bg-surface\/95 { background-color: color-mix(in srgb, var(--bg-surface) 95%, transparent); }
+        .bg-panel { background-color: var(--bg-panel); }
+        .bg-ink { background-color: var(--text-ink); }
+        .bg-ink\/40 { background-color: color-mix(in srgb, var(--text-ink) 40%, transparent); }
+        .bg-muted\/40 { background-color: color-mix(in srgb, var(--text-muted) 40%, transparent); }
+        .bg-black\/80 { background-color: rgba(0, 0, 0, 0.8); }
+        .bg-emerald-500 { background-color: #10b981; }
+        .bg-\[#fafaf9\] { background-color: #fafaf9; }
+        .bg-\[#f6f3ec\] { background-color: #f6f3ec; }
+        .bg-\[#282725\] { background-color: #282725; }
+        .bg-\[#141413\] { background-color: #141413; }
+
+        /* Borders & Dividers */
+        .border { border-width: 1px; }
+        .border-t { border-top-width: 1px; }
+        .border-b { border-bottom-width: 1px; }
+        .border-b-0 { border-bottom-width: 0px; }
+        .border-r { border-right-width: 1px; }
+        .border-line { border-color: var(--border-line); }
+        .border-line\/60 { border-color: color-mix(in srgb, var(--border-line) 60%, transparent); }
+        .border-ink { border-color: var(--text-ink); }
+        .border-\[#d6d6d3\] { border-color: #d6d6d3; }
+        .border-\[#d8d0c0\] { border-color: #d8d0c0; }
+        .border-\[#3d3b38\] { border-color: #3d3b38; }
+        .border-\[#3a3a38\] { border-color: #3a3a38; }
+
+        .divide-y > :not([hidden]) ~ :not([hidden]) { border-top-width: 1px; border-color: var(--border-line); }
+        .divide-line > :not([hidden]) ~ :not([hidden]) { border-color: var(--border-line); }
+
+        .rounded { border-radius: 0.25rem; }
+        .rounded-md { border-radius: 0.375rem; }
+        .rounded-t-md { border-top-left-radius: 0.375rem; border-top-right-radius: 0.375rem; }
+        .rounded-full { border-radius: 9999px; }
+
+        /* Effects, Shadows, Object-Fit, Misc */
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .shadow-\[0_-8px_30px_rgba\(0\,0\,0\,0\.06\)\] { box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.06); }
+        .opacity-90 { opacity: 0.9; }
+        .backdrop-blur-\[2px\] { backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+        .backdrop-blur-sm { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .overflow-hidden { overflow: hidden; }
+        .overflow-x-auto { overflow-x: auto; }
+        .object-cover { object-fit: cover; }
+        .object-contain { object-fit: contain; }
+        .pointer-events-none { pointer-events: none; }
+        .pointer-events-auto { pointer-events: auto; }
+        .select-none { user-select: none; -webkit-user-select: none; }
+        .cursor-pointer { cursor: pointer; }
+        .cursor-default { cursor: default; }
+        .cursor-zoom-out { cursor: zoom-out; }
+        .scroll-smooth { scroll-behavior: smooth; }
+        .transform { transform: translate(0, 0); }
+        .-rotate-12 { transform: rotate(-12deg); }
+        .scale-125 { transform: scale(1.25); }
+        .-rotate-12.scale-125 { transform: rotate(-12deg) scale(1.25); }
+        .transition-all { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+        .transition-colors { transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease; }
+        .transition-opacity { transition: opacity 0.15s ease; }
+        .transition-transform { transition: transform 0.15s ease; }
+        .duration-200 { transition-duration: 200ms; }
+        .duration-300 { transition-duration: 300ms; }
+
+        /* States (Hover, Focus, Group-Hover, Selection) */
+        .selection\:bg-ink ::selection, .selection\:bg-ink::selection { background-color: var(--text-ink); color: var(--bg-canvas); }
+        .hover\:bg-surface:hover { background-color: var(--bg-surface); }
+        .hover\:bg-ink:hover { background-color: var(--text-ink); }
+        .hover\:text-ink:hover { color: var(--text-ink); }
+        .hover\:text-canvas:hover { color: var(--bg-canvas); }
+        .hover\:text-red-600:hover { color: #dc2626; }
+        .hover\:border-ink:hover { border-color: var(--text-ink); }
+        .hover\:border-red-400:hover { border-color: #f87171; }
+        .hover\:opacity-70:hover { opacity: 0.7; }
+        .hover\:opacity-80:hover { opacity: 0.8; }
+        .hover\:opacity-90:hover { opacity: 0.9; }
+        .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+        .focus\:border-ink:focus { border-color: var(--text-ink); }
+
+        .group:hover .group-hover\:underline { text-decoration-line: underline; }
+        .group:hover .group-hover\:bg-ink { background-color: var(--text-ink); }
+        .group:hover .group-hover\:text-canvas { color: var(--bg-canvas); }
+        .group:hover .group-hover\:border-ink { border-color: var(--text-ink); }
+        .group:hover .group-hover\:scale-105 { transform: scale(1.05); }
+        .group:hover .group-hover\:scale-\[1\.03\] { transform: scale(1.03); }
+
+        /* Responsive Breakpoints (sm: 640px, md: 768px) */
+        @media (min-width: 640px) {
+            .sm\:inline { display: inline; }
+            .sm\:flex-row { flex-direction: row; }
+            .sm\:items-end { align-items: flex-end; }
+            .sm\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+            .sm\:col-span-4 { grid-column: span 4 / span 4; }
+            .sm\:col-span-8 { grid-column: span 8 / span 8; }
+            .sm\:aspect-\[21\/9\] { aspect-ratio: 21 / 9; }
+            .sm\:gap-8 { gap: 2rem; }
+            .sm\:p-6 { padding: 1.5rem; }
+            .sm\:p-8 { padding: 2rem; }
+            .sm\:p-10 { padding: 2.5rem; }
+            .sm\:p-14 { padding: 3.5rem; }
+            .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .sm\:pt-10 { padding-top: 2.5rem; }
+            .sm\:text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+            .sm\:text-base { font-size: 1rem; line-height: 1.5rem; }
+            .sm\:text-2xl { font-size: 1.5rem; line-height: 2rem; }
+            .sm\:text-5xl { font-size: 3rem; line-height: 1; }
+        }
+        @media (min-width: 768px) {
+            .md\:flex-row { flex-direction: row; }
+            .md\:items-center { align-items: center; }
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .md\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+            .md\:col-span-4 { grid-column: span 4 / span 4; }
+            .md\:col-span-8 { grid-column: span 8 / span 8; }
+            .md\:divide-y-0 > :not([hidden]) ~ :not([hidden]) { border-top-width: 0px; }
+            .md\:divide-x > :not([hidden]) ~ :not([hidden]) { border-left-width: 1px; border-color: var(--border-line); }
+            .md\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+            .md\:pl-8 { padding-left: 2rem; }
+            .md\:pr-8 { padding-right: 2rem; }
+        }
+
+        /* カラーテーマ変数 */
+        :root {
+            --bg-canvas: #fafaf9;
+            --text-ink: #171717;
+            --text-muted: #737373;
+            --border-line: #e5e5e4;
+            --bg-surface: #f4f4f2;
+            --bg-panel: rgba(244, 244, 242, 0.95);
+        }
+        [data-theme="warm"] {
+            --bg-canvas: #f6f3ec;
+            --text-ink: #26231e;
+            --text-muted: #787267;
+            --border-line: #e2ddd2;
+            --bg-surface: #ede8dd;
+            --bg-panel: rgba(237, 232, 221, 0.96);
+        }
+        [data-theme="charcoal"] {
+            --bg-canvas: #282725;
+            --text-ink: #f0eee9;
+            --text-muted: #9e9b93;
+            --border-line: #3d3b38;
+            --bg-surface: #32312e;
+            --bg-panel: rgba(40, 39, 37, 0.95);
+        }
+        [data-theme="dark"] {
+            --bg-canvas: #141413;
+            --text-ink: #f4f4f0;
+            --text-muted: #8e8e8a;
+            --border-line: #2a2a28;
+            --bg-surface: #1e1e1c;
+            --bg-panel: rgba(36, 36, 34, 0.95);
+        }
+
+        /* スマホでのプル・トゥ・リフレッシュやブラウザタブの引っ張り下がりを防止 */
+        html, body {
+            overscroll-behavior-y: none;
+        }
+
+        /* ドラッグ中の連続スクロールを阻害しないよう、ドラッグ時のみsmoothを即時解除 */
+        html.is-dragging-scroll,
+        html.is-dragging-scroll body {
+            scroll-behavior: auto !important;
+            overscroll-behavior: none !important;
+            touch-action: none !important;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-ink);
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.8;
+            letter-spacing: 0.02em;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        body.font-serif-mode h1,
+        body.font-serif-mode h2,
+        body.font-serif-mode h3 {
+            font-family: 'Shippori Mincho', serif;
+        }
+
+        /* モーダル表示アニメーション */
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-enter {
+            animation: fade-in 0.2s ease-out forwards;
+        }
+
+        /* セキュリティ・コピーガード（試着モードOFF時のみ有効） */
+        body.guard-active {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        body.guard-active img {
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        /* 試着モード（編集可能テキストのハイライト） */
+        .sim-active [data-editable="true"],
+        .sim-active [data-modal-editable="true"] {
+            outline: 1px dashed rgba(115, 115, 115, 0.6);
+            outline-offset: 3px;
+            border-radius: 3px;
+            cursor: text !important;
+            transition: outline 0.15s ease, background-color 0.15s ease;
+        }
+        .sim-active [data-editable="true"]:hover,
+        .sim-active [data-editable="true"]:focus,
+        .sim-active [data-modal-editable="true"]:hover,
+        .sim-active [data-modal-editable="true"]:focus {
+            outline: 1.5px solid var(--text-ink);
+            background-color: rgba(128, 128, 128, 0.08);
+        }
+        .sim-active .bg-ink [data-editable="true"]:focus {
+            outline-color: var(--bg-canvas);
+        }
+
+        /* セクション枠とツールバー */
+        .sortable-section {
+            position: relative;
+            transition: opacity 0.2s ease;
+        }
+        .sim-active .sortable-section:hover {
+            outline: 1px dashed rgba(115, 115, 115, 0.35);
+            outline-offset: 10px;
+            border-radius: 6px;
+        }
+
+        .section-controls {
+            display: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .sim-active .section-controls {
+            display: inline-flex;
+        }
+
+        /* ドラッグハンドル */
+        .drag-handle {
+            cursor: grab;
+            touch-action: none !important;
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* PC・スマホ共通：視界を塞がないスマートなフローティングゴーストバー */
+        #pointer-drag-ghost {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%) scale(1.02);
+            width: min(92vw, 640px);
+            height: 50px;
+            z-index: 9999;
+            background-color: var(--bg-canvas);
+            color: var(--text-ink);
+            border: 1.5px solid var(--text-ink);
+            border-radius: 8px;
+            box-shadow: 0 18px 38px rgba(0, 0, 0, 0.20);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            pointer-events: none;
+            touch-action: none;
+        }
+
+        /* ドラッグ移動中の元のセクション（落下位置を示すガイド枠化） */
+        .sortable-section.is-pointer-placeholder {
+            opacity: 0.32 !important;
+            outline: 2px dashed var(--text-ink) !important;
+            outline-offset: 8px;
+            background-color: rgba(128, 128, 128, 0.05);
+            border-radius: 8px;
+        }
+
+        /* 透かし */
+        .watermark-pattern {
+            background-image: repeating-linear-gradient(
+                -28deg,
+                transparent,
+                transparent 80px,
+                rgba(128, 128, 128, 0.04) 80px,
+                rgba(128, 128, 128, 0.04) 81px
+            );
+        }
+        .img-watermark::after {
+            content: "SAMPLE PREVIEW — © re-standard";
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            color: var(--text-ink);
+            opacity: 0.22;
+            transform: rotate(-18deg);
+            pointer-events: none;
+            user-select: none;
+            font-weight: 600;
+        }
+
+        body[data-popup-mode="detail"] .work-image-slot { cursor: pointer; }
+        body[data-popup-mode="zoom"] .work-image-slot { cursor: zoom-in; }
+        body[data-popup-mode="off"] .work-image-slot { cursor: default; }
+
+        #sim-drawer-wrapper {
+            transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .drawer-closed { transform: translateY(calc(100% - 36px)); }
+        .drawer-open { transform: translateY(0); }
+
+        /* 履歴操作（Undo/Redo/Reset）ボタン制御 */
+        .history-btn:disabled {
+            opacity: 0.28;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .history-btn:not(:disabled):active {
+            transform: translateY(1px);
+        }
+    </style>
+</head>
+<body data-popup-mode="detail" class="selection:bg-ink selection:text-canvas guard-active" ondragstart="if(!isSimMode && event.target.tagName==='IMG') return false;">
+
+    <div id="pointer-drag-ghost">
+        <div class="flex items-center gap-2.5 truncate">
+            <span class="text-base leading-none">⠿</span>
+            <span id="pointer-ghost-label" class="text-xs font-medium tracking-wider truncate">Section</span>
+        </div>
+        <span class="text-[10px] font-mono tracking-widest text-muted uppercase shrink-0">Moving...</span>
+    </div>
+
+    <div id="export-toast" class="fixed top-20 inset-x-4 z-[70] hidden pointer-events-none justify-center transition-opacity duration-300">
+        <div class="bg-ink text-canvas px-4 py-3 rounded-md shadow-2xl text-xs tracking-wider flex items-center gap-2.5 max-w-full">
+            <span id="export-toast-text" class="truncate">HTMLファイルを保存しました</span>
+        </div>
+    </div>
+
+    <div id="global-watermark" class="fixed inset-0 z-30 pointer-events-none select-none overflow-hidden hidden opacity-90 watermark-pattern">
+        <div class="w-full h-full flex flex-col justify-around items-center transform -rotate-12 scale-125">
+            <div class="text-xs sm:text-sm tracking-[0.4em] text-muted/25 font-mono whitespace-nowrap">
+                PREVIEW ONLY — © re-standard DESIGN TEMPLATE — DO NOT COPY — PREVIEW ONLY
+            </div>
+            <div class="text-xs sm:text-sm tracking-[0.4em] text-muted/25 font-mono whitespace-nowrap">
+                © re-standard — ROLEPLAY SIMULATOR MODE — PROTECTED LAYOUT — © re-standard
+            </div>
+            <div class="text-xs sm:text-sm tracking-[0.4em] text-muted/25 font-mono whitespace-nowrap">
+                PREVIEW ONLY — © re-standard DESIGN TEMPLATE — DO NOT COPY — PREVIEW ONLY
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="fixed top-0 left-0 w-full z-40 bg-canvas/90 backdrop-blur-sm border-b border-line transition-colors">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+            <a href="#" onclick="if(isSimMode) event.preventDefault()" onblur="syncDocumentTitle()" id="sim-brand-name" data-editable="true" class="text-sm font-semibold tracking-[0.15em] uppercase text-ink shrink-0">
+                THE STANDARD
+            </a>
+            <nav id="sim-header-nav" class="flex items-center gap-4 sm:gap-8 text-xs sm:text-sm text-muted overflow-x-auto py-1">
+                <a href="#philosophy" onclick="if(isSimMode) event.preventDefault()" data-editable="true" class="hover:text-ink transition-colors whitespace-nowrap">Philosophy</a>
+                <a href="#works" onclick="if(isSimMode) event.preventDefault()" data-editable="true" class="hover:text-ink transition-colors whitespace-nowrap">Works</a>
+                <a href="#spec" onclick="if(isSimMode) event.preventDefault()" data-editable="true" class="hover:text-ink transition-colors whitespace-nowrap">Specification</a>
+                <a href="#contact" onclick="if(isSimMode) event.preventDefault()" data-editable="true" class="text-ink font-medium underline underline-offset-4 hover:opacity-70 transition-opacity whitespace-nowrap">
+                    Contact
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main id="sortable-container" class="max-w-5xl mx-auto px-6 pt-28 pb-28 space-y-28">
+
+        <!-- 00. MAIN VISUAL -->
+        <section id="main-visual" data-section-name="Main Visual（メインビジュアル枠）" class="sortable-section hidden space-y-4 pt-2">
+            <div class="flex items-center justify-between gap-2">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">00 / Main Visual</span>
+                <div class="section-controls items-center gap-1 z-20">
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ上へ移動">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ下へ移動">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line rounded text-[11px] text-ink hover:border-ink shadow-sm transition-colors" title="ここを掴んで上下にドラッグ移動">
+                        <span class="text-sm leading-none">⠿</span><span class="font-mono tracking-wider uppercase">Move</span>
+                    </div>
+                    <button type="button" onclick="toggleMainVisual(false)" class="px-2.5 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-red-600 hover:border-red-400 shadow-sm transition-colors" title="メインビジュアルを非表示（OFF）にする">× 非表示</button>
+                </div>
+            </div>
+            <div class="aspect-[16/9] sm:aspect-[21/9] w-full bg-surface border border-line rounded-md overflow-hidden flex items-center justify-center relative img-watermark">
+                <img id="preview-img-mv" class="w-full h-full object-cover hidden select-none pointer-events-none" alt="Main Visual Preview">
+                <div id="placeholder-txt-mv" class="text-center px-6 space-y-1">
+                    <span data-editable="true" class="text-xs tracking-[0.25em] text-muted uppercase block">MAIN VISUAL / KEY PHOTOGRAPH SLOT</span>
+                    <span data-editable="true" class="text-[11px] text-muted/70 block">コーポレート・店舗の象徴となるワイド写真を配置できます（21:9 / 16:9）</span>
+                </div>
+                <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 rounded-md cursor-pointer hover:border-ink shadow-sm transition-colors">
+                    <span>＋ メイン写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, 'mv')">
+                </label>
+            </div>
+            <div class="flex justify-between items-center text-xs text-muted pt-0.5">
+                <span data-editable="true">Key Visual — Brand Atmosphere / Architectural Overview</span>
+                <span data-editable="true" class="font-mono text-[11px]">FIG. 00</span>
+            </div>
+        </section>
+
+        <!-- HERO -->
+        <section id="hero" data-section-name="Hero（キャッチコピー・導入）" class="sortable-section space-y-10 pt-4 sm:pt-10">
+            <div class="flex items-center justify-between gap-2">
+                <p id="sim-sub-label" data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase inline-block">Web Design & Digital Architecture</p>
+                <div class="section-controls items-center gap-1 z-20">
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ上へ移動">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ下へ移動">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line rounded text-[11px] text-ink hover:border-ink shadow-sm transition-colors" title="ここを掴んで上下にドラッグ移動">
+                        <span class="text-sm leading-none">⠿</span><span class="font-mono tracking-wider uppercase">Move</span>
+                    </div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-red-600 hover:border-red-400 shadow-sm transition-colors" title="このセクションを削除">× 削除</button>
+                </div>
+            </div>
+            <h1 id="sim-main-copy" data-editable="true" class="text-3xl sm:text-5xl font-medium tracking-wide text-ink leading-[1.5] max-w-3xl">
+                かわらず、ずっと。<br>使い続けられる標準をつくる。
+            </h1>
+            <p id="sim-lead-text" data-editable="true" class="text-sm sm:text-base text-muted max-w-2xl leading-loose">
+                流行の装飾や過剰なシステムに頼らず、情報の整理と確かな基礎技術だけで構築されたWebサイト。誰にとっても迷いなく使えて、10年後も破綻しない「用の美」を設計の基準としています。
+            </p>
+            <div class="pt-4 flex flex-wrap items-center gap-4">
+                <a href="#works" onclick="if(isSimMode) event.preventDefault()" class="inline-flex items-center gap-3 px-7 py-3.5 bg-ink text-canvas text-xs tracking-[0.15em] uppercase rounded-md hover:opacity-80 transition-opacity">
+                    <span data-editable="true">View Archives</span><span>↓</span>
+                </a>
+                <button type="button" id="sim-launch-cta-btn" onclick="if(!isSimMode) openAndActivateSimulator()" class="inline-flex items-center gap-2 px-5 py-3.5 border border-line bg-surface text-ink text-xs tracking-wider rounded-md hover:border-ink transition-colors">
+                    <span data-editable="true">✎ この画面で「試着（並び替え・文字・画像編集）」を体験する</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 01. PHILOSOPHY -->
+        <section id="philosophy" data-section-name="Philosophy（設計の3原則）" class="sortable-section space-y-10 border-t border-line pt-12">
+            <div class="flex items-center justify-between gap-2">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">01 / Philosophy</span>
+                <div class="section-controls items-center gap-1 z-20">
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ上へ移動">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ下へ移動">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line rounded text-[11px] text-ink hover:border-ink shadow-sm transition-colors" title="ここを掴んで上下にドラッグ移動">
+                        <span class="text-sm leading-none">⠿</span><span class="font-mono tracking-wider uppercase">Move</span>
+                    </div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-red-600 hover:border-red-400 shadow-sm transition-colors" title="このセクションを削除">× 削除</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div class="md:col-span-4"><h2 data-editable="true" class="text-xl font-medium tracking-wide">設計の3原則</h2></div>
+                <div data-editable="true" class="md:col-span-8 text-sm sm:text-base text-muted leading-loose">
+                    何かを足すことで個性を出すのではなく、不要な要素を削ぎ落とすことで本来の目的を浮かび上がらせます。
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 border-t border-b border-line divide-y md:divide-y-0 md:divide-x divide-line">
+                <div class="py-8 md:pr-8 space-y-4">
+                    <span data-editable="true" class="text-xs text-muted tracking-widest block">01 — CLARITY</span>
+                    <h3 data-editable="true" class="text-base font-medium text-ink tracking-wide">明快な構造</h3>
+                    <p data-editable="true" class="text-sm text-muted leading-relaxed">訪問者が目的の情報へ最短でたどり着けるよう、視線の流れと余白の比率を整理し、説明のいらない画面を設計します。</p>
+                </div>
+                <div class="py-8 md:px-8 space-y-4">
+                    <span data-editable="true" class="text-xs text-muted tracking-widest block">02 — DURABILITY</span>
+                    <h3 data-editable="true" class="text-base font-medium text-ink tracking-wide">長期的な堅牢性</h3>
+                    <p data-editable="true" class="text-sm text-muted leading-relaxed">成熟した標準技術（HTML / CSS / JavaScript）を土台とし、必要な機能だけを外部基盤と疎結合させることで、経年劣化や保守負担を最小限に抑えます。</p>
+                </div>
+                <div class="py-8 md:pl-8 space-y-4">
+                    <span data-editable="true" class="text-xs text-muted tracking-widest block">03 — PROTOTYPING</span>
+                    <h3 data-editable="true" class="text-base font-medium text-ink tracking-wide">動く試作品からの対話</h3>
+                    <p data-editable="true" class="text-sm text-muted leading-relaxed">抽象的な言葉や書類だけで議論するのではなく、初期段階から実際にブラウザで触れるプロトタイプを提示し、具体的な手触りを確かめながら完成度を高めます。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 02. WORKS -->
+        <section id="works" data-section-name="Works（制作実績・ギャラリー）" class="sortable-section space-y-10 border-t border-line pt-12">
+            <div class="flex items-center justify-between gap-2">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">02 / Selected Works & Gallery</span>
+                <div class="section-controls items-center gap-1.5 z-20 flex-wrap justify-end">
+                    <div class="inline-flex items-center bg-surface border border-line rounded px-2 py-1 gap-1 text-[11px] mr-1 shadow-sm" title="ギャラリーの表示枠数を2・4・6から選択">
+                        <span class="text-muted font-mono uppercase text-[10px]">Slots:</span>
+                        <button type="button" onclick="setWorksCount(2)" data-works-count-btn="2" class="px-1.5 py-0.5 rounded text-muted hover:text-ink transition-colors">2</button>
+                        <button type="button" onclick="setWorksCount(4)" data-works-count-btn="4" class="px-1.5 py-0.5 rounded bg-ink text-canvas font-medium transition-colors">4</button>
+                        <button type="button" onclick="setWorksCount(6)" data-works-count-btn="6" class="px-1.5 py-0.5 rounded text-muted hover:text-ink transition-colors">6</button>
+                    </div>
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ上へ移動">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ下へ移動">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line rounded text-[11px] text-ink hover:border-ink shadow-sm transition-colors" title="ここを掴んで上下にドラッグ移動">
+                        <span class="text-sm leading-none">⠿</span><span class="font-mono tracking-wider uppercase">Move</span>
+                    </div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-red-600 hover:border-red-400 shadow-sm transition-colors" title="このセクションを削除">× 削除</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div><h2 data-editable="true" class="text-xl font-medium tracking-wide">制作実績・プロトタイプ</h2></div>
+                <p id="works-guide-text" data-editable="true" class="text-xs text-muted">※ 各項目を選択すると詳細が表示されます</p>
+            </div>
+
+            <div id="works-grid" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
+                <!-- Card 01 -->
+                <article data-work-card="1" class="group space-y-4">
+                    <div onclick="handleThumbnailClick(1)" class="work-image-slot aspect-[16/10] bg-surface border border-line rounded-md overflow-hidden flex items-center justify-center relative img-watermark">
+                        <img id="preview-img-1" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Preview 01">
+                        <span id="placeholder-txt-1" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase group-hover:scale-105 transition-transform duration-300">01 / Visual Placeholder</span>
+                        <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 rounded-md cursor-pointer hover:border-ink shadow-sm transition-colors">
+                            <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, 1)">
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-baseline pt-1 gap-2">
+                        <div>
+                            <h3 id="sim-work-title-1" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(1)" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Project Title 01</h3>
+                            <p id="sim-work-desc-1" data-editable="true" class="text-xs text-muted mt-1">Category / Static Website</p>
+                        </div>
+                        <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(1)" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                    </div>
+                </article>
+                <!-- Card 02 -->
+                <article data-work-card="2" class="group space-y-4">
+                    <div onclick="handleThumbnailClick(2)" class="work-image-slot aspect-[16/10] bg-surface border border-line rounded-md overflow-hidden flex items-center justify-center relative img-watermark">
+                        <img id="preview-img-2" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Preview 02">
+                        <span id="placeholder-txt-2" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase group-hover:scale-105 transition-transform duration-300">02 / Visual Placeholder</span>
+                        <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 rounded-md cursor-pointer hover:border-ink shadow-sm transition-colors">
+                            <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, 2)">
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-baseline pt-1 gap-2">
+                        <div>
+                            <h3 id="sim-work-title-2" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(2)" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Project Title 02</h3>
+                            <p id="sim-work-desc-2" data-editable="true" class="text-xs text-muted mt-1">Category / Web Application (BaaS)</p>
+                        </div>
+                        <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(2)" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                    </div>
+                </article>
+                <!-- Card 03 -->
+                <article data-work-card="3" class="group space-y-4">
+                    <div onclick="handleThumbnailClick(3)" class="work-image-slot aspect-[16/10] bg-surface border border-line rounded-md overflow-hidden flex items-center justify-center relative img-watermark">
+                        <img id="preview-img-3" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Preview 03">
+                        <span id="placeholder-txt-3" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase group-hover:scale-105 transition-transform duration-300">03 / Visual Placeholder</span>
+                        <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 rounded-md cursor-pointer hover:border-ink shadow-sm transition-colors">
+                            <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, 3)">
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-baseline pt-1 gap-2">
+                        <div>
+                            <h3 id="sim-work-title-3" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(3)" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Project Title 03</h3>
+                            <p id="sim-work-desc-3" data-editable="true" class="text-xs text-muted mt-1">Category / Brand Concept</p>
+                        </div>
+                        <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(3)" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                    </div>
+                </article>
+                <!-- Card 04 -->
+                <article data-work-card="4" class="group space-y-4">
+                    <div onclick="handleThumbnailClick(4)" class="work-image-slot aspect-[16/10] bg-surface border border-line rounded-md overflow-hidden flex items-center justify-center relative img-watermark">
+                        <img id="preview-img-4" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Preview 04">
+                        <span id="placeholder-txt-4" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase group-hover:scale-105 transition-transform duration-300">04 / Visual Placeholder</span>
+                        <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 rounded-md cursor-pointer hover:border-ink shadow-sm transition-colors">
+                            <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, 4)">
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-baseline pt-1 gap-2">
+                        <div>
+                            <h3 id="sim-work-title-4" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(4)" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Project Title 04</h3>
+                            <p id="sim-work-desc-4" data-editable="true" class="text-xs text-muted mt-1">Category / Editorial & Archive</p>
+                        </div>
+                        <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(4)" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                    </div>
+                </article>
+                <!-- Card 05 (hidden) -->
+                <article data-work-card="5" class="group space-y-4 hidden">
+                    <div onclick="handleThumbnailClick(5)" class="work-image-slot aspect-[16/10] bg-surface border border-line rounded-md overflow-hidden flex items-center justify-center relative img-watermark">
+                        <img id="preview-img-5" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Preview 05">
+                        <span id="placeholder-txt-5" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase group-hover:scale-105 transition-transform duration-300">05 / Visual Placeholder</span>
+                        <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 rounded-md cursor-pointer hover:border-ink shadow-sm transition-colors">
+                            <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, 5)">
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-baseline pt-1 gap-2">
+                        <div>
+                            <h3 id="sim-work-title-5" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(5)" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Project Title 05</h3>
+                            <p id="sim-work-desc-5" data-editable="true" class="text-xs text-muted mt-1">Category / Brand &amp; Product</p>
+                        </div>
+                        <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(5)" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                    </div>
+                </article>
+                <!-- Card 06 (hidden) -->
+                <article data-work-card="6" class="group space-y-4 hidden">
+                    <div onclick="handleThumbnailClick(6)" class="work-image-slot aspect-[16/10] bg-surface border border-line rounded-md overflow-hidden flex items-center justify-center relative img-watermark">
+                        <img id="preview-img-6" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Preview 06">
+                        <span id="placeholder-txt-6" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase group-hover:scale-105 transition-transform duration-300">06 / Visual Placeholder</span>
+                        <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 rounded-md cursor-pointer hover:border-ink shadow-sm transition-colors">
+                            <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, 6)">
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-baseline pt-1 gap-2">
+                        <div>
+                            <h3 id="sim-work-title-6" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(6)" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Project Title 06</h3>
+                            <p id="sim-work-desc-6" data-editable="true" class="text-xs text-muted mt-1">Category / Archive &amp; Concept</p>
+                        </div>
+                        <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(6)" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 03. SPECIFICATION -->
+        <section id="spec" data-section-name="Specification（標準仕様・概要）" class="sortable-section space-y-10 border-t border-line pt-12">
+            <div class="flex items-center justify-between gap-2">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">03 / Specification</span>
+                <div class="section-controls items-center gap-1 z-20">
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ上へ移動">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ下へ移動">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line rounded text-[11px] text-ink hover:border-ink shadow-sm transition-colors" title="ここを掴んで上下にドラッグ移動">
+                        <span class="text-sm leading-none">⠿</span><span class="font-mono tracking-wider uppercase">Move</span>
+                    </div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-red-600 hover:border-red-400 shadow-sm transition-colors" title="このセクションを削除">× 削除</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div class="md:col-span-4">
+                    <h2 data-editable="true" class="text-xl font-medium tracking-wide">標準仕様と店舗・会社概要</h2>
+                    <p data-editable="true" class="text-xs text-muted mt-3 leading-relaxed">試着モードでは、右側の表をお客様の店舗情報（営業時間・所在地など）に書き換えてご確認いただけます。</p>
+                </div>
+                <div class="md:col-span-8">
+                    <dl class="divide-y divide-line border-t border-b border-line text-sm">
+                        <div class="py-5 grid grid-cols-1 sm:grid-cols-12 gap-2">
+                            <dt data-editable="true" class="sm:col-span-4 text-muted">屋号・名称</dt>
+                            <dd data-editable="true" class="sm:col-span-8 text-ink">THE STANDARD（クリックして自社の名称に変更可能）</dd>
+                        </div>
+                        <div class="py-5 grid grid-cols-1 sm:grid-cols-12 gap-2">
+                            <dt data-editable="true" class="sm:col-span-4 text-muted">事業内容・コンセプト</dt>
+                            <dd data-editable="true" class="sm:col-span-8 text-ink">Webデザイン設計 / 静的・BaaSハイブリッド構築</dd>
+                        </div>
+                        <div class="py-5 grid grid-cols-1 sm:grid-cols-12 gap-2">
+                            <dt data-editable="true" class="sm:col-span-4 text-muted">所在地・アクセス</dt>
+                            <dd data-editable="true" class="sm:col-span-8 text-ink">京都市（全国オンライン対応）</dd>
+                        </div>
+                        <div class="py-5 grid grid-cols-1 sm:grid-cols-12 gap-2">
+                            <dt data-editable="true" class="sm:col-span-4 text-muted">標準納期・維持費</dt>
+                            <dd data-editable="true" class="sm:col-span-8 text-ink">プロトタイプ確認後 約1〜2週間 / 月額保守費 0円〜</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <!-- 04. CONTACT -->
+        <section id="contact" data-section-name="Contact（お問い合わせ）" class="sortable-section border-t border-line pt-12">
+            <div class="flex items-center justify-between gap-2 mb-6">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">04 / Order & Contact</span>
+                <div class="section-controls items-center gap-1 z-20">
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ上へ移動">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ下へ移動">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line rounded text-[11px] text-ink hover:border-ink shadow-sm transition-colors" title="ここを掴んで上下にドラッグ移動">
+                        <span class="text-sm leading-none">⠿</span><span class="font-mono tracking-wider uppercase">Move</span>
+                    </div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-red-600 hover:border-red-400 shadow-sm transition-colors" title="このセクションを削除">× 削除</button>
+                </div>
+            </div>
+            <div class="bg-surface border border-line rounded-md p-8 sm:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+                <div class="space-y-3 max-w-xl">
+                    <h2 data-editable="true" class="text-xl sm:text-2xl font-medium text-ink tracking-wide">試着したイメージでの制作相談・お見積り</h2>
+                    <p data-editable="true" class="text-sm text-muted leading-relaxed">画面上で書き換えた屋号やキャッチコピー、並び替えたセクション構成、選択したポップアップ種類やカラーテーマをそのまま引き継いで制作のご相談メールを作成できます。</p>
+                </div>
+                <div class="shrink-0">
+                    <button type="button" onclick="if(!isSimMode) sendRoleplayOrder()" class="px-8 py-4 bg-ink text-canvas text-xs tracking-[0.15em] uppercase rounded-md hover:opacity-80 transition-opacity">
+                        <span data-editable="true">この試着内容で相談する →</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="sim-footer" class="max-w-5xl mx-auto px-6 py-12 border-t border-line flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted pb-28">
+        <div data-editable="true">&copy; 2026 THE STANDARD / re-standard. All rights reserved.</div>
+        <div data-editable="true" class="tracking-widest uppercase">Built for Longevity</div>
+    </footer>
+
+    <!-- MODAL 1: 詳細カードモーダル -->
+    <div id="detail-modal" onclick="if(event.target === this) closeAllModals()" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
+        <div id="detail-modal-box" class="bg-canvas border border-line rounded-md max-w-xl w-full p-6 sm:p-10 shadow-xl space-y-6">
+            <div class="flex justify-between items-start border-b border-line pb-4 gap-4">
+                <div>
+                    <span id="modal-category" class="text-xs tracking-widest text-muted uppercase block"></span>
+                    <h3 id="modal-title" class="text-xl font-medium text-ink mt-1"></h3>
+                </div>
+                <button type="button" onclick="handleCloseBtnClick(event)" class="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface border border-line text-xs text-muted hover:text-ink hover:border-ink transition-all shrink-0">
+                    <span id="detail-close-label" data-modal-editable="true" onblur="syncCloseLabels(this)" class="tracking-wider font-medium">CLOSE</span>
+                    <span class="w-4 h-4 rounded-full bg-canvas border border-line flex items-center justify-center text-[10px] leading-none group-hover:bg-ink group-hover:text-canvas group-hover:border-ink transition-colors">✕</span>
+                </button>
+            </div>
+            <div class="aspect-[16/9] bg-surface border border-line rounded-md flex items-center justify-center relative overflow-hidden img-watermark">
+                <img id="modal-preview-img" class="w-full h-full object-cover hidden select-none pointer-events-none" alt="Modal Preview">
+                <span id="modal-url-preview" data-modal-editable="true" onblur="saveModalEdits()" class="text-xs text-muted tracking-wider px-4 text-center"></span>
+            </div>
+            <div class="space-y-4 text-sm">
+                <p id="modal-desc" data-modal-editable="true" onblur="saveModalEdits()" class="text-ink leading-relaxed"></p>
+                <div class="pt-3 border-t border-line flex justify-between items-baseline gap-4 text-xs text-muted">
+                    <span data-modal-editable="true">Architecture / Spec:</span>
+                    <span id="modal-tech" data-modal-editable="true" onblur="saveModalEdits()" class="text-ink font-medium"></span>
+                </div>
+                <p id="modal-edit-hint" class="hidden text-[11px] text-muted">※ 試着モード中：右上の「CLOSE」や説明文・下部ボタンの文言もクリックして自由に打ち替えられます（枠外クリックで閉じます）</p>
+            </div>
+            <div class="pt-2 flex justify-end gap-3">
+                <button type="button" onclick="handleCloseBtnClick(event)" class="px-5 py-2.5 bg-surface border border-line text-xs text-muted rounded-md hover:text-ink hover:border-ink transition-colors">
+                    <span id="detail-bottom-close-label" data-modal-editable="true" onblur="syncBottomCloseLabel(this)">閉じる</span>
+                </button>
+                <a id="modal-link" href="#" onclick="if(isSimMode) event.preventDefault()" target="_blank" rel="noopener noreferrer" class="px-6 py-2.5 bg-ink text-canvas text-xs tracking-wider uppercase rounded-md hover:opacity-80 transition-opacity">
+                    <span data-modal-editable="true">サイトを開く →</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: 写真拡大ライトボックス -->
+    <div id="lightbox-modal" onclick="closeAllModals()" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6 cursor-zoom-out">
+        <div onclick="event.stopPropagation()" class="relative w-full max-w-4xl bg-canvas border border-line rounded-md overflow-hidden shadow-2xl cursor-default modal-enter">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-line bg-surface gap-4">
+                <div class="flex items-center gap-3 truncate">
+                    <span id="lightbox-title" class="text-xs font-medium tracking-wider text-ink truncate">Project Title</span>
+                    <span id="lightbox-desc" class="text-xs text-muted hidden sm:inline truncate"></span>
+                </div>
+                <button type="button" onclick="handleCloseBtnClick(event)" class="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-canvas border border-line text-xs text-muted hover:text-ink hover:border-ink transition-all shrink-0">
+                    <span id="lightbox-close-label" data-modal-editable="true" onblur="syncCloseLabels(this)" class="tracking-wider font-medium">CLOSE</span>
+                    <span class="w-4 h-4 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] leading-none group-hover:bg-ink group-hover:text-canvas group-hover:border-ink transition-colors">✕</span>
+                </button>
+            </div>
+            <div class="aspect-[16/10] w-full bg-surface flex items-center justify-center relative overflow-hidden img-watermark">
+                <img id="lightbox-img" class="w-full h-full object-contain hidden select-none pointer-events-none" alt="Enlarged Preview">
+                <div id="lightbox-placeholder" class="text-xs tracking-[0.25em] text-muted uppercase px-4 text-center">Visual Slot Preview (No Image Uploaded Yet)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: 納品用データ書き出しパスコード認証モーダル -->
+    <div id="passcode-modal" onclick="if(event.target === this) closePasscodeModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
+        <div class="bg-canvas border border-line rounded-md max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-5 modal-enter">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] font-mono tracking-widest text-muted uppercase block">Admin Only</span>
+                    <h3 class="text-base font-medium text-ink mt-0.5">完成品（納品用）の書き出し</h3>
+                </div>
+                <button type="button" onclick="closePasscodeModal()" class="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] text-muted hover:text-ink hover:border-ink transition-colors">✕</button>
+            </div>
+            <p class="text-xs text-muted leading-relaxed">透かしやシミュレーターを除去し、外部通信不要の完全な単一HTMLとして保存するには、制作者用パスコードを入力してください。</p>
+            <div class="space-y-2">
+                <input type="password" id="passcode-input" inputmode="numeric" placeholder="Passcode" onkeydown="if(event.key==='Enter') submitPasscode()" class="w-full px-3.5 py-2.5 bg-surface border border-line rounded-md text-center font-mono text-base tracking-[0.35em] text-ink focus:outline-none focus:border-ink transition-colors">
+                <p id="passcode-error" class="hidden text-[11px] text-red-600 text-center">パスコードが正しくありません</p>
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button type="button" onclick="closePasscodeModal()" class="px-4 py-2 bg-surface border border-line text-xs text-muted rounded-md hover:text-ink hover:border-ink transition-colors">キャンセル</button>
+                <button type="button" onclick="submitPasscode()" class="px-5 py-2 bg-ink text-canvas text-xs font-medium tracking-wider rounded-md hover:opacity-80 transition-opacity">保存する →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: 初期化（RESET）確認モーダル（サイトデザイン準拠・シンプル仕様） -->
+    <div id="reset-modal" onclick="if(event.target === this) closeResetModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
+        <div class="bg-canvas border border-line rounded-md max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-6 modal-enter">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] font-mono tracking-widest text-muted uppercase block">Reset</span>
+                    <h3 class="text-base font-medium text-ink mt-0.5">初期状態へのリセット</h3>
+                </div>
+                <button type="button" onclick="closeResetModal()" class="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] text-muted hover:text-ink hover:border-ink transition-colors">✕</button>
+            </div>
+            <p class="text-xs text-muted leading-relaxed">
+                編集内容を破棄し、初期状態に戻しますか？
+            </p>
+            <div class="flex justify-end gap-2 pt-1">
+                <button type="button" onclick="closeResetModal()" class="px-4 py-2 bg-surface border border-line text-xs text-muted rounded-md hover:text-ink hover:border-ink transition-colors">キャンセル</button>
+                <button type="button" onclick="confirmReset()" class="px-5 py-2 bg-ink text-canvas text-xs font-medium tracking-wider rounded-md hover:opacity-80 transition-opacity">リセット</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ドロワー -->
+    <div id="sim-drawer-wrapper" class="fixed bottom-0 left-0 w-full z-50 flex flex-col items-center pointer-events-none drawer-closed">
+        <button type="button" onclick="toggleDrawer()" class="pointer-events-auto h-[36px] px-5 bg-panel backdrop-blur-md border border-b-0 border-line rounded-t-md shadow-sm flex items-center gap-2.5 text-xs text-muted hover:text-ink transition-colors">
+            <span id="drawer-arrow" class="text-[10px] transition-transform duration-300">▲</span>
+            <span class="tracking-wider font-medium">試着シミュレーター</span>
+            <span id="drawer-badge" class="w-1.5 h-1.5 rounded-full bg-muted/40 transition-colors"></span>
+        </button>
+
+        <div class="pointer-events-auto w-full bg-panel backdrop-blur-md border-t border-line shadow-[0_-8px_30px_rgba(0,0,0,0.06)] px-4 sm:px-6 py-4">
+            <div class="max-w-5xl mx-auto flex flex-col gap-3">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button id="sim-toggle-btn" onclick="toggleSimulator()" class="px-4 py-2 bg-canvas text-ink border border-line text-xs font-medium rounded-md shadow-sm hover:border-ink transition-colors">
+                            ✎ 試着モード：OFF（クリックで編集開始）
+                        </button>
+
+                        <!-- 履歴操作＆リセットボタン（モノトーン・インダストリアル統一仕様） -->
+                        <div class="inline-flex items-center rounded-md border border-line bg-canvas overflow-hidden shadow-sm">
+                            <button type="button" id="sim-undo-btn" onclick="undoHistory()" disabled class="history-btn px-2.5 py-2 text-xs font-mono text-ink hover:bg-surface transition-colors border-r border-line leading-none" title="ひとつ前の状態に戻す (Ctrl+Z)">↺</button>
+                            <button type="button" id="sim-redo-btn" onclick="redoHistory()" disabled class="history-btn px-2.5 py-2 text-xs font-mono text-ink hover:bg-surface transition-colors border-r border-line leading-none" title="ひとつ先の状態に進む (Ctrl+Y)">↻</button>
+                            <button type="button" onclick="openResetModal()" class="history-btn px-2.5 py-2 text-[10px] font-mono tracking-widest uppercase text-muted hover:text-ink hover:bg-surface transition-colors leading-none" title="初期状態に戻す">RESET</button>
+                        </div>
+
+                        <!-- セクション追加・表示メニュー -->
+                        <div class="relative">
+                            <button type="button" id="add-menu-btn" onclick="toggleAddMenu(event)" class="px-3 py-2 bg-canvas text-ink border border-line text-xs rounded-md hover:border-ink transition-colors flex items-center gap-1.5">
+                                <span>＋ セクション追加・表示</span><span class="text-[9px] text-muted">▲</span>
+                            </button>
+                            <div id="add-section-menu" onclick="event.stopPropagation()" class="hidden absolute bottom-full left-0 mb-2 w-60 max-w-[calc(100vw-24px)] bg-canvas border border-line rounded-md shadow-xl p-1.5 z-50 space-y-1 text-xs">
+                                <div class="px-2.5 py-1 text-[10px] tracking-wider text-muted uppercase border-b border-line/60">Optional Sections</div>
+                                <button type="button" id="mv-toggle-menu-btn" onclick="toggleMainVisual(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between transition-colors">
+                                    <span>メインビジュアル枠</span><span id="mv-status-badge" class="px-1.5 py-0.5 text-[10px] rounded bg-surface border border-line text-muted">OFF</span>
+                                </button>
+                                <button type="button" onclick="addFreeTextSection(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between transition-colors">
+                                    <span>＋ フリーテキスト枠を追加</span>
+                                </button>
+                                <button type="button" onclick="addGallerySection(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between transition-colors">
+                                    <span>＋ ギャラリー枠を追加</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- HTMLを保存メニュー -->
+                        <div class="relative">
+                            <button type="button" id="save-menu-btn" onclick="toggleSaveMenu(event)" class="group px-3.5 py-2 bg-canvas text-ink border border-line text-xs font-medium rounded-md hover:bg-ink hover:text-canvas hover:border-ink transition-all duration-200 flex items-center gap-1.5">
+                                <span>↓ HTMLを保存</span><span class="text-[9px] text-muted group-hover:text-canvas transition-colors">▲</span>
+                            </button>
+                            <div id="save-html-menu" onclick="event.stopPropagation()" class="hidden absolute bottom-full left-0 mb-2 w-52 max-w-[calc(100vw-24px)] bg-canvas border border-line rounded-md shadow-xl p-1.5 z-50 space-y-1 text-xs">
+                                <div class="px-2.5 py-1 text-[10px] tracking-wider text-muted uppercase border-b border-line/60">Export Mode</div>
+                                <button type="button" onclick="downloadCurrentHTML('preset'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between transition-colors" title="透かしとシミュレーターを残した状態で保存します（事前準備やお客様の入稿データ用）">
+                                    <span>プリセット保存</span><span class="px-1.5 py-0.5 text-[10px] rounded bg-surface border border-line text-muted">一時保存</span>
+                                </button>
+                                <button type="button" onclick="requestCleanExport(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between transition-colors" title="パスコード認証後、シミュレーターや透かしを完全消去して保存します">
+                                    <span class="font-medium text-ink">完成品を保存</span><span class="px-1.5 py-0.5 text-[10px] rounded bg-ink text-canvas font-medium">納品用</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                        <span class="text-xs text-muted mr-0.5">紙色：</span>
+                        <button onclick="setTheme('default')" class="px-2.5 py-1.5 rounded-md bg-[#fafaf9] text-[#171717] border border-[#d6d6d3] text-xs hover:opacity-80">白磁</button>
+                        <button onclick="setTheme('warm')" class="px-2.5 py-1.5 rounded-md bg-[#f6f3ec] text-[#26231e] border border-[#d8d0c0] text-xs hover:opacity-80">生成り</button>
+                        <button onclick="setTheme('charcoal')" class="px-2.5 py-1.5 rounded-md bg-[#282725] text-[#f0eee9] border border-[#3d3b38] text-xs hover:opacity-80">消炭</button>
+                        <button onclick="setTheme('dark')" class="px-2.5 py-1.5 rounded-md bg-[#141413] text-[#f4f4f0] border border-[#3a3a38] text-xs hover:opacity-80">墨黒</button>
+                        <span class="text-line mx-0.5">|</span>
+                        <button id="font-toggle-btn" onclick="toggleFontStyle()" class="px-2.5 py-1.5 rounded-md bg-canvas border border-line text-ink text-xs hover:border-ink transition-colors">書体：ゴシック</button>
+                        <button id="popup-toggle-btn" onclick="cyclePopupMode()" class="px-3 py-1.5 rounded-md bg-ink text-canvas border border-ink text-xs hover:opacity-90 transition-colors" title="クリックするごとにポップアップの種類が切り替わります">ポップアップ：詳細カード</button>
+                        <button onclick="toggleDrawer()" class="ml-1 px-2 py-1.5 text-muted hover:text-ink text-xs" title="バーを隠す">隠す ▼</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 保存状態の引き継ぎ用データスクリプト -->
+    <script id="re-standard-state">
+        window.__INITIAL_STATE__ = {
+            currentTheme: 'default',
+            isSerif: false,
+            popupMode: 'detail',
+            isMainVisualVisible: false,
+            closeBtnText: 'CLOSE',
+            bottomCloseBtnText: '閉じる',
+            worksCount: 4,
+            slotCounter: 6,
+            customSectionCounter: 1,
+            projectDetails: {
+                1: { desc: 'プロジェクトの目的、ターゲット、および設計上の工夫をここに記述します。不要な装飾を省き、情報の見やすさと表示速度を最優先に設計した標準的な静的サイトの構成例です。', tech: 'HTML5 / Tailwind CSS / JavaScript', url: 'https://example.com/project-01' },
+                2: { desc: '外観はシンプルな静的構造を保ちながら、パスワード認証やデータベース連携などの必要な動的機能のみを外部BaaS（Supabase等）と接続したハイブリッド構成の事例です。', tech: 'HTML5 / JavaScript / Supabase', url: 'https://example.com/project-02' },
+                3: { desc: '店舗やブランドの空気感を伝えるためのシングルページ構成。写真と余白、タイポグラフィのバランスを整え、スマートフォンからでも直感的に閲覧できるレイアウトです。', tech: 'HTML5 / CSS Grid / Responsive UI', url: 'https://example.com/project-03' },
+                4: { desc: '複数の記事や作品を整理して見せるアーカイブ型のレイアウト。長期的な運用でも構造が崩れないモジュール設計を採用しています。', tech: 'HTML5 / Modular Grid', url: 'https://example.com/project-04' },
+                5: { desc: 'プロジェクト05の詳細説明テキストです。試着モードで自由に書き換えられます。', tech: 'HTML5 / CSS Grid', url: 'https://example.com/project-05' },
+                6: { desc: 'プロジェクト06の詳細説明テキストです。試着モードで自由に書き換えられます。', tech: 'HTML5 / Vanilla JS', url: 'https://example.com/project-06' }
+            }
+        };
+    </script>
+
+    <!-- メイン制御スクリプト -->
+    <script>
+        const ADMIN_PASSCODE = '0328';
+        const CONTACT_EMAIL = 'hello@example.com';
+        const AUTOSAVE_KEY = 're_standard_autosave_v1';
+
+        let isDrawerOpen = false;
+        let isSimMode = false;
+        let activeSlotIndex = null;
+
+        const isProductionBuild = !document.getElementById('sim-drawer-wrapper');
+        let savedData = null;
+        if (!isProductionBuild) {
+            try {
+                const rawData = localStorage.getItem(AUTOSAVE_KEY);
+                if (rawData) savedData = JSON.parse(rawData);
+            } catch (e) {
+                console.error("Local Storage read error:", e);
+            }
+        }
+        const initState = savedData || window.__INITIAL_STATE__ || {};
+
+        let currentTheme = initState.currentTheme || 'default';
+        let isSerif = !!initState.isSerif;
+        let popupMode = initState.popupMode || 'detail';
+        let isMainVisualVisible = !!initState.isMainVisualVisible;
+        let closeBtnText = initState.closeBtnText || 'CLOSE';
+        let bottomCloseBtnText = initState.bottomCloseBtnText || '閉じる';
+        let worksCount = initState.worksCount || 4;
+        let slotCounter = Math.max(initState.slotCounter || 6, 6);
+        let customSectionCounter = initState.customSectionCounter || 1;
+        const projectDetails = JSON.parse(JSON.stringify(initState.projectDetails || window.__INITIAL_STATE__.projectDetails));
+        if (!projectDetails[5]) {
+            projectDetails[5] = { desc: 'プロジェクト05の詳細説明テキストです。試着モードで自由に書き換えられます。', tech: 'HTML5 / CSS Grid', url: 'https://example.com/project-05' };
+        }
+        if (!projectDetails[6]) {
+            projectDetails[6] = { desc: 'プロジェクト06の詳細説明テキストです。試着モードで自由に書き換えられます。', tech: 'HTML5 / Vanilla JS', url: 'https://example.com/project-06' };
+        }
+
+        // ==========================================================
+        // ★ UNDO / REDO / AUTOSAVE / RESET スナップショット管理エンジン
+        // ==========================================================
+        const MAX_HISTORY_STEPS = 30;
+        let historyStack = [];
+        let historyIndex = -1;
+        let isRestoringHistory = false;
+        let typingDebounceTimer = null;
+
+        function createSnapshot() {
+            const mainEl = document.getElementById('sortable-container');
+            const brandEl = document.getElementById('sim-brand-name');
+            const navEl = document.getElementById('sim-header-nav');
+            const footerEl = document.getElementById('sim-footer');
+
+            return {
+                mainHTML: mainEl ? mainEl.innerHTML : '',
+                brandHTML: brandEl ? brandEl.innerHTML : '',
+                navHTML: navEl ? navEl.innerHTML : '',
+                footerHTML: footerEl ? footerEl.innerHTML : '',
+                currentTheme,
+                isSerif,
+                popupMode,
+                isMainVisualVisible,
+                closeBtnText,
+                bottomCloseBtnText,
+                worksCount,
+                slotCounter,
+                customSectionCounter,
+                projectDetails: JSON.parse(JSON.stringify(projectDetails))
+            };
+        }
+
+        function isSameSnapshot(a, b) {
+            if (!a || !b) return false;
+            return (
+                a.mainHTML === b.mainHTML &&
+                a.brandHTML === b.brandHTML &&
+                a.navHTML === b.navHTML &&
+                a.footerHTML === b.footerHTML &&
+                a.currentTheme === b.currentTheme &&
+                a.isSerif === b.isSerif &&
+                a.popupMode === b.popupMode &&
+                a.isMainVisualVisible === b.isMainVisualVisible &&
+                a.closeBtnText === b.closeBtnText &&
+                a.bottomCloseBtnText === b.bottomCloseBtnText &&
+                a.worksCount === b.worksCount &&
+                JSON.stringify(a.projectDetails) === JSON.stringify(b.projectDetails)
+            );
+        }
+
+        function recordHistory() {
+            if (isRestoringHistory || isProductionBuild) return;
+            const snap = createSnapshot();
+
+            if (historyIndex >= 0 && isSameSnapshot(historyStack[historyIndex], snap)) {
+                return;
+            }
+
+            historyStack = historyStack.slice(0, historyIndex + 1);
+            historyStack.push(snap);
+
+            if (historyStack.length > MAX_HISTORY_STEPS) {
+                historyStack.shift();
+            } else {
+                historyIndex++;
+            }
+            updateHistoryButtonsUI();
+
+            try {
+                localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snap));
+            } catch (e) {
+                console.warn("Could not save to localStorage", e);
+            }
+        }
+
+        function applySnapshot(snap) {
+            if (!snap) return;
+            isRestoringHistory = true;
+
+            const mainEl = document.getElementById('sortable-container');
+            const brandEl = document.getElementById('sim-brand-name');
+            const navEl = document.getElementById('sim-header-nav');
+            const footerEl = document.getElementById('sim-footer');
+
+            if (mainEl && snap.mainHTML) mainEl.innerHTML = snap.mainHTML;
+            if (brandEl && snap.brandHTML) brandEl.innerHTML = snap.brandHTML;
+            if (navEl && snap.navHTML) navEl.innerHTML = snap.navHTML;
+            if (footerEl && snap.footerHTML) footerEl.innerHTML = snap.footerHTML;
+
+            currentTheme = snap.currentTheme;
+            isSerif = snap.isSerif;
+            popupMode = snap.popupMode;
+            isMainVisualVisible = snap.isMainVisualVisible;
+            closeBtnText = snap.closeBtnText;
+            bottomCloseBtnText = snap.bottomCloseBtnText;
+            worksCount = snap.worksCount;
+            slotCounter = snap.slotCounter;
+            customSectionCounter = snap.customSectionCounter;
+
+            Object.keys(projectDetails).forEach(k => delete projectDetails[k]);
+            Object.assign(projectDetails, JSON.parse(JSON.stringify(snap.projectDetails)));
+
+            setTheme(currentTheme, false);
+            toggleFontStyle(isSerif, false);
+            applyPopupModeUI();
+            toggleMainVisual(isMainVisualVisible, false);
+            applyCloseLabelsUI();
+            setWorksCount(worksCount, false);
+            syncDocumentTitle();
+            refreshEditableState();
+
+            isRestoringHistory = false;
+            updateHistoryButtonsUI();
+        }
+
+        function undoHistory() {
+            if (historyIndex <= 0) return;
+            clearTimeout(typingDebounceTimer);
+            historyIndex--;
+            applySnapshot(historyStack[historyIndex]);
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(historyStack[historyIndex])); } catch(e){}
+        }
+
+        function redoHistory() {
+            if (historyIndex >= historyStack.length - 1) return;
+            clearTimeout(typingDebounceTimer);
+            historyIndex++;
+            applySnapshot(historyStack[historyIndex]);
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(historyStack[historyIndex])); } catch(e){}
+        }
+
+        // ★ カスタム確認モーダルによるリセット制御
+        function openResetModal() {
+            closeAllMenus();
+            const modal = document.getElementById('reset-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeResetModal() {
+            const modal = document.getElementById('reset-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function confirmReset() {
+            closeResetModal();
+            try {
+                localStorage.removeItem(AUTOSAVE_KEY);
+            } catch(e){}
+            location.reload();
+        }
+
+        function updateHistoryButtonsUI() {
+            const undoBtn = document.getElementById('sim-undo-btn');
+            const redoBtn = document.getElementById('sim-redo-btn');
+            if (undoBtn) undoBtn.disabled = (historyIndex <= 0);
+            if (redoBtn) redoBtn.disabled = (historyIndex >= historyStack.length - 1);
+        }
+
+        document.addEventListener('input', function(e) {
+            if (!isSimMode || isRestoringHistory) return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (!target) return;
+            clearTimeout(typingDebounceTimer);
+            typingDebounceTimer = setTimeout(() => {
+                if (target.hasAttribute('data-modal-editable')) saveModalEdits(false);
+                syncDocumentTitle();
+                recordHistory();
+            }, 400);
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+                const key = e.key.toLowerCase();
+                if (key === 'z') { e.preventDefault(); e.shiftKey ? redoHistory() : undoHistory(); }
+                else if (key === 'y') { e.preventDefault(); redoHistory(); }
+            }
+        });
+
+        function syncDocumentTitle() {
+            const brandEl = document.getElementById('sim-brand-name');
+            if (!brandEl) return;
+            const brandTxt = brandEl.innerText.trim();
+            if (brandTxt) document.title = `${brandTxt} — Web Design & Archive`;
+        }
+
+        document.addEventListener('paste', function(e) {
+            if (!isSimMode) return;
+            const target = e.target.closest('[contenteditable="true"]');
+            if (!target) return;
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
+                document.execCommand('insertText', false, text);
+            } else {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+                selection.deleteFromDocument();
+                selection.getRangeAt(0).insertNode(document.createTextNode(text));
+                selection.collapseToEnd();
+            }
+            recordHistory();
+        });
+
+        // 1. ドロワー＆メニュー制御
+        function toggleDrawer(forceOpen = null) {
+            const wrapper = document.getElementById('sim-drawer-wrapper');
+            const arrow = document.getElementById('drawer-arrow');
+            if (!wrapper || !arrow) return;
+            isDrawerOpen = forceOpen !== null ? forceOpen : !isDrawerOpen;
+            if (isDrawerOpen) {
+                wrapper.classList.remove('drawer-closed'); wrapper.classList.add('drawer-open'); arrow.textContent = '▼';
+            } else {
+                wrapper.classList.remove('drawer-open'); wrapper.classList.add('drawer-closed'); arrow.textContent = '▲'; closeAllMenus();
+            }
+        }
+
+        function adjustPopupAlignment(btnEl, menuEl) {
+            if (!btnEl || !menuEl) return;
+            menuEl.style.left = '0px'; menuEl.style.right = 'auto';
+            const btnRect = btnEl.getBoundingClientRect();
+            const menuWidth = menuEl.offsetWidth || 220;
+            const vw = window.innerWidth;
+            const margin = 12;
+            if (btnRect.left + menuWidth > vw - margin) {
+                if (btnRect.right - menuWidth >= margin) { menuEl.style.left = 'auto'; menuEl.style.right = '0px'; }
+                else {
+                    const offsetLeft = Math.max(margin - btnRect.left, vw - margin - menuWidth - btnRect.left);
+                    menuEl.style.left = `${offsetLeft}px`; menuEl.style.right = 'auto';
+                }
+            }
+        }
+
+        function toggleAddMenu(e) {
+            if (e) e.stopPropagation();
+            const addBtn = document.getElementById('add-menu-btn');
+            const addMenu = document.getElementById('add-section-menu');
+            const saveMenu = document.getElementById('save-html-menu');
+            if (saveMenu) saveMenu.classList.add('hidden');
+            if (addMenu) {
+                const willOpen = addMenu.classList.contains('hidden');
+                addMenu.classList.toggle('hidden');
+                if (willOpen) adjustPopupAlignment(addBtn, addMenu);
+            }
+        }
+
+        function toggleSaveMenu(e) {
+            if (e) e.stopPropagation();
+            const saveBtn = document.getElementById('save-menu-btn');
+            const saveMenu = document.getElementById('save-html-menu');
+            const addMenu = document.getElementById('add-section-menu');
+            if (addMenu) addMenu.classList.add('hidden');
+            if (saveMenu) {
+                const willOpen = saveMenu.classList.contains('hidden');
+                saveMenu.classList.toggle('hidden');
+                if (willOpen) adjustPopupAlignment(saveBtn, saveMenu);
+            }
+        }
+
+        window.addEventListener('resize', function() {
+            const addBtn = document.getElementById('add-menu-btn');
+            const addMenu = document.getElementById('add-section-menu');
+            const saveBtn = document.getElementById('save-menu-btn');
+            const saveMenu = document.getElementById('save-html-menu');
+            if (addMenu && !addMenu.classList.contains('hidden')) adjustPopupAlignment(addBtn, addMenu);
+            if (saveMenu && !saveMenu.classList.contains('hidden')) adjustPopupAlignment(saveBtn, saveMenu);
+        });
+
+        function closeAllMenus() {
+            const addMenu = document.getElementById('add-section-menu');
+            const saveMenu = document.getElementById('save-html-menu');
+            if (addMenu) addMenu.classList.add('hidden');
+            if (saveMenu) saveMenu.classList.add('hidden');
+        }
+
+        document.addEventListener('click', closeAllMenus);
+
+        function openAndActivateSimulator() {
+            toggleDrawer(true);
+            if (!isSimMode) toggleSimulator(true);
+        }
+
+        function toggleMainVisual(forceState = null, shouldRecord = true) {
+            isMainVisualVisible = forceState !== null ? forceState : !isMainVisualVisible;
+            const mvSec = document.getElementById('main-visual');
+            const badge = document.getElementById('mv-status-badge');
+            if (mvSec) {
+                mvSec.classList.toggle('hidden', !isMainVisualVisible);
+                if (isMainVisualVisible && forceState === null) {
+                    if (!isSimMode) toggleSimulator(true);
+                    mvSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+            if (badge) {
+                badge.textContent = isMainVisualVisible ? 'ON' : 'OFF';
+                badge.className = isMainVisualVisible ? 'px-1.5 py-0.5 text-[10px] rounded bg-ink text-canvas font-medium' : 'px-1.5 py-0.5 text-[10px] rounded bg-surface border border-line text-muted';
+            }
+            refreshEditableState();
+            if (shouldRecord) recordHistory();
+        }
+
+        function setWorksCount(count, shouldRecord = true) {
+            worksCount = [2, 4, 6].includes(Number(count)) ? Number(count) : 4;
+            document.querySelectorAll('#works [data-work-card]').forEach(card => {
+                const idx = Number(card.getAttribute('data-work-card'));
+                card.classList.toggle('hidden', idx > worksCount);
+            });
+            document.querySelectorAll('[data-works-count-btn]').forEach(btn => {
+                const btnCount = Number(btn.getAttribute('data-works-count-btn'));
+                if (btnCount === worksCount) {
+                    btn.classList.add('bg-ink', 'text-canvas', 'font-medium'); btn.classList.remove('text-muted');
+                } else {
+                    btn.classList.remove('bg-ink', 'text-canvas', 'font-medium'); btn.classList.add('text-muted');
+                }
+            });
+            refreshEditableState();
+            if (shouldRecord) recordHistory();
+        }
+
+        function refreshEditableState() {
+            const editables = document.querySelectorAll('[data-editable="true"], [data-modal-editable="true"]');
+            const uploadBtns = document.querySelectorAll('.sim-upload-btn');
+            const modalHint = document.getElementById('modal-edit-hint');
+            if (isSimMode) {
+                editables.forEach(el => { el.setAttribute('contenteditable', 'true'); el.setAttribute('spellcheck', 'false'); });
+                uploadBtns.forEach(btn => btn.classList.remove('hidden'));
+                if (modalHint) modalHint.classList.remove('hidden');
+            } else {
+                editables.forEach(el => el.removeAttribute('contenteditable'));
+                uploadBtns.forEach(btn => btn.classList.add('hidden'));
+                if (modalHint) modalHint.classList.add('hidden');
+            }
+        }
+
+        function toggleSimulator(forceState = null) {
+            isSimMode = forceState !== null ? forceState : !isSimMode;
+            const body = document.body;
+            const toggleBtn = document.getElementById('sim-toggle-btn');
+            const badge = document.getElementById('drawer-badge');
+            const watermark = document.getElementById('global-watermark');
+            if (isSimMode) {
+                body.classList.add('sim-active'); body.classList.remove('guard-active');
+                if (toggleBtn) { toggleBtn.textContent = '✓ 試着モード：ON（全テキスト・画像・⠿移動が可能）'; toggleBtn.classList.add('bg-ink', 'text-canvas'); toggleBtn.classList.remove('bg-canvas', 'text-ink'); }
+                if (badge) badge.classList.replace('bg-muted/40', 'bg-emerald-500');
+                if (watermark) watermark.classList.remove('hidden');
+            } else {
+                body.classList.remove('sim-active'); body.classList.add('guard-active');
+                if (toggleBtn) { toggleBtn.textContent = '✎ 試着モード：OFF（クリックで編集開始）'; toggleBtn.classList.remove('bg-ink', 'text-canvas'); toggleBtn.classList.add('bg-canvas', 'text-ink'); }
+                if (badge) badge.classList.replace('bg-emerald-500', 'bg-muted/40');
+                if (watermark) watermark.classList.add('hidden');
+            }
+            refreshEditableState();
+        }
+
+        // 3. ドラッグ＆ドロップエンジン
+        const container = document.getElementById('sortable-container');
+        const pointerGhost = document.getElementById('pointer-drag-ghost');
+        const pointerGhostLabel = document.getElementById('pointer-ghost-label');
+        let draggedSection = null, isPointerDragging = false, activePointerId = null, currentPointerY = 0, autoScrollSpeed = 0, autoScrollFrame = null;
+
+        function moveSectionStep(btnEl, direction) {
+            if (!isSimMode) return;
+            const currentSec = btnEl.closest('.sortable-section');
+            if (!currentSec) return;
+            const visibleSections = Array.from(container.querySelectorAll('.sortable-section:not(.hidden)'));
+            const idx = visibleSections.indexOf(currentSec);
+            if (idx === -1) return;
+            const targetIdx = idx + direction;
+            if (targetIdx < 0 || targetIdx >= visibleSections.length) return;
+            const targetSec = visibleSections[targetIdx];
+            if (direction < 0) container.insertBefore(currentSec, targetSec);
+            else container.insertBefore(currentSec, targetSec.nextSibling);
+            currentSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            recordHistory();
+        }
+
+        container.addEventListener('touchstart', function(e) { if (isSimMode && e.target.closest('.drag-handle')) e.preventDefault(); }, { passive: false });
+        window.addEventListener('touchmove', function(e) { if (isPointerDragging) e.preventDefault(); }, { passive: false });
+
+        container.addEventListener('pointerdown', function(e) {
+            if (!isSimMode) return;
+            const handle = e.target.closest('.drag-handle');
+            if (!handle || (e.pointerType === 'mouse' && e.button !== 0)) return;
+            if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+            draggedSection = handle.closest('.sortable-section');
+            if (!draggedSection) return;
+
+            isPointerDragging = true; activePointerId = e.pointerId; currentPointerY = e.clientY;
+            document.documentElement.classList.add('is-dragging-scroll');
+            try { handle.setPointerCapture(e.pointerId); } catch (err) {}
+
+            const headingEl = draggedSection.querySelector('h1, h2');
+            if (pointerGhostLabel) pointerGhostLabel.textContent = headingEl ? headingEl.innerText.replace(/\n+/g, ' ').trim() : (draggedSection.getAttribute('data-section-name') || 'Section');
+            if (pointerGhost) { pointerGhost.style.display = 'flex'; updateGhostPosition(e.clientY); }
+            draggedSection.classList.add('is-pointer-placeholder');
+            if (!autoScrollFrame) autoScrollFrame = requestAnimationFrame(continuousDragLoop);
+            e.preventDefault();
+        });
+
+        window.addEventListener('pointermove', function(e) {
+            if (!isPointerDragging || !draggedSection || (activePointerId !== null && e.pointerId !== activePointerId)) return;
+            currentPointerY = e.clientY; updateGhostPosition(e.clientY); computeScrollVelocity(e.clientY); evaluateSectionSwap(e.clientY);
+            e.preventDefault();
+        }, { passive: false });
+
+        function finishPointerDrag(e) {
+            if (!isPointerDragging || (e && activePointerId !== null && e.pointerId !== undefined && e.pointerId !== activePointerId)) return;
+            isPointerDragging = false; activePointerId = null; autoScrollSpeed = 0;
+            if (autoScrollFrame) { cancelAnimationFrame(autoScrollFrame); autoScrollFrame = null; }
+            document.documentElement.classList.remove('is-dragging-scroll');
+            if (pointerGhost) pointerGhost.style.display = 'none';
+            if (draggedSection) { draggedSection.classList.remove('is-pointer-placeholder'); draggedSection = null; }
+            recordHistory();
+        }
+
+        window.addEventListener('pointerup', finishPointerDrag);
+        window.addEventListener('pointercancel', finishPointerDrag);
+
+        function updateGhostPosition(clientY) { if (pointerGhost) pointerGhost.style.top = Math.max(12, Math.min(window.innerHeight - 62, clientY - 25)) + 'px'; }
+
+        function computeScrollVelocity(clientY) {
+            const topZone = Math.max(150, window.innerHeight * 0.28), bottomZone = Math.max(180, window.innerHeight * 0.32), minSpeed = 4, maxSpeed = 24;
+            if (clientY < topZone) autoScrollSpeed = -Math.round(minSpeed + Math.pow(Math.min(1, Math.max(0, (topZone - clientY) / topZone)), 1.25) * (maxSpeed - minSpeed));
+            else if (window.innerHeight - clientY < bottomZone) autoScrollSpeed = Math.round(minSpeed + Math.pow(Math.min(1, Math.max(0, (bottomZone - (window.innerHeight - clientY)) / bottomZone)), 1.25) * (maxSpeed - minSpeed));
+            else autoScrollSpeed = 0;
+        }
+
+        function continuousDragLoop() {
+            if (!isPointerDragging) { autoScrollFrame = null; return; }
+            if (autoScrollSpeed !== 0) { window.scrollBy(0, autoScrollSpeed); evaluateSectionSwap(currentPointerY); }
+            autoScrollFrame = requestAnimationFrame(continuousDragLoop);
+        }
+
+        function evaluateSectionSwap(clientY) {
+            if (!draggedSection) return;
+            const visibleSections = Array.from(container.querySelectorAll('.sortable-section:not(.hidden)'));
+            for (const sec of visibleSections) {
+                if (sec === draggedSection) continue;
+                const rect = sec.getBoundingClientRect();
+                if (clientY >= rect.top && clientY <= rect.bottom) {
+                    const midpoint = rect.top + rect.height / 2;
+                    const currentIdx = visibleSections.indexOf(draggedSection), targetIdx = visibleSections.indexOf(sec);
+                    if (currentIdx < targetIdx && clientY > midpoint - 24) container.insertBefore(draggedSection, sec.nextSibling);
+                    else if (currentIdx > targetIdx && clientY < midpoint + 24) container.insertBefore(draggedSection, sec);
+                    break;
+                }
+            }
+        }
+
+        // 4. セクション追加・ポップアップ・画像管理
+        function deleteSection(btnEl) {
+            if (!isSimMode) return;
+            const section = btnEl.closest('.sortable-section');
+            if (!section) return;
+            if (document.querySelectorAll('#sortable-container .sortable-section:not(.hidden)').length <= 1) { alert('これ以上セクションを削除できません。'); return; }
+            section.remove(); recordHistory();
+        }
+
+        function insertNewSection(sectionEl) {
+            if (!isSimMode) toggleSimulator(true);
+            const contactSec = document.getElementById('contact');
+            if (contactSec && contactSec.parentNode === container) container.insertBefore(sectionEl, contactSec);
+            else container.appendChild(sectionEl);
+            refreshEditableState(); sectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); recordHistory();
+        }
+
+        function addFreeTextSection() {
+            const num = String(customSectionCounter++).padStart(2, '0');
+            const sec = document.createElement('section');
+            sec.id = 'custom-text-' + Date.now();
+            sec.setAttribute('data-section-name', `Free Text #${num}（追加フリーテキスト枠）`);
+            sec.className = 'sortable-section space-y-8 border-t border-line pt-12';
+            sec.innerHTML = `
+                <div class="flex items-center justify-between gap-2">
+                    <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">EXTRA / Free Text Block ${num}</span>
+                    <div class="section-controls items-center gap-1 z-20">
+                        <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ上へ移動">↑</button>
+                        <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ下へ移動">↓</button>
+                        <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line rounded text-[11px] text-ink hover:border-ink shadow-sm transition-colors" title="ここを掴んで上下にドラッグ移動"><span class="text-sm leading-none">⠿</span><span class="font-mono tracking-wider uppercase">Move</span></div>
+                        <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-red-600 hover:border-red-400 shadow-sm transition-colors" title="このセクションを削除">× 削除</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <div class="md:col-span-4"><h2 data-editable="true" class="text-xl font-medium tracking-wide">新しい見出しタイトル</h2></div>
+                    <div data-editable="true" class="md:col-span-8 text-sm sm:text-base text-muted leading-loose">ここは新しく追加されたフリーテキストセクションです。クリックして自由に書き換えられます。</div>
+                </div>`;
+            insertNewSection(sec);
+        }
+
+        function addGallerySection() {
+            const num = String(customSectionCounter++).padStart(2, '0');
+            const slotA = ++slotCounter, slotB = ++slotCounter;
+            projectDetails[slotA] = { desc: '追加ギャラリー枠の説明文です。', tech: 'Custom Item 0' + slotA, url: 'https://example.com/item-0' + slotA };
+            projectDetails[slotB] = { desc: '追加ギャラリー枠の説明文です。', tech: 'Custom Item 0' + slotB, url: 'https://example.com/item-0' + slotB };
+            const sec = document.createElement('section');
+            sec.id = 'custom-gallery-' + Date.now();
+            sec.setAttribute('data-section-name', `Gallery #${num}（追加ギャラリー枠）`);
+            sec.className = 'sortable-section space-y-10 border-t border-line pt-12';
+            sec.innerHTML = `
+                <div class="flex items-center justify-between gap-2">
+                    <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">EXTRA / Additional Gallery ${num}</span>
+                    <div class="section-controls items-center gap-1 z-20">
+                        <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ上へ移動">↑</button>
+                        <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-ink hover:border-ink transition-colors" title="1つ下へ移動">↓</button>
+                        <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line rounded text-[11px] text-ink hover:border-ink shadow-sm transition-colors" title="ここを掴んで上下にドラッグ移動"><span class="text-sm leading-none">⠿</span><span class="font-mono tracking-wider uppercase">Move</span></div>
+                        <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line rounded text-[11px] text-muted hover:text-red-600 hover:border-red-400 shadow-sm transition-colors" title="このセクションを削除">× 削除</button>
+                    </div>
+                </div>
+                <div><h2 data-editable="true" class="text-xl font-medium tracking-wide">追加ギャラリー・商品紹介</h2></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
+                    <article class="group space-y-4">
+                        <div onclick="handleThumbnailClick(${slotA})" class="work-image-slot aspect-[16/10] bg-surface border border-line rounded-md overflow-hidden flex items-center justify-center relative img-watermark">
+                            <img id="preview-img-${slotA}" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Preview ${slotA}">
+                            <span id="placeholder-txt-${slotA}" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase group-hover:scale-105 transition-transform duration-300">0${slotA} / Visual Placeholder</span>
+                            <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 rounded-md cursor-pointer hover:border-ink shadow-sm transition-colors">
+                                <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, ${slotA})">
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-baseline pt-1 gap-2">
+                            <div><h3 id="sim-work-title-${slotA}" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${slotA})" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Project Title 0${slotA}</h3><p id="sim-work-desc-${slotA}" data-editable="true" class="text-xs text-muted mt-1">Category / Custom Item</p></div>
+                            <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${slotA})" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                        </div>
+                    </article>
+                    <article class="group space-y-4">
+                        <div onclick="handleThumbnailClick(${slotB})" class="work-image-slot aspect-[16/10] bg-surface border border-line rounded-md overflow-hidden flex items-center justify-center relative img-watermark">
+                            <img id="preview-img-${slotB}" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Preview ${slotB}">
+                            <span id="placeholder-txt-${slotB}" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase group-hover:scale-105 transition-transform duration-300">0${slotB} / Visual Placeholder</span>
+                            <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 rounded-md cursor-pointer hover:border-ink shadow-sm transition-colors">
+                                <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, ${slotB})">
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-baseline pt-1 gap-2">
+                            <div><h3 id="sim-work-title-${slotB}" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${slotB})" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Project Title 0${slotB}</h3><p id="sim-work-desc-${slotB}" data-editable="true" class="text-xs text-muted mt-1">Category / Custom Item</p></div>
+                            <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${slotB})" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                        </div>
+                    </article>
+                </div>`;
+            insertNewSection(sec);
+        }
+
+        function handleCloseBtnClick(e) { if (isSimMode && e.target.hasAttribute('data-modal-editable')) { e.stopPropagation(); return; } closeAllModals(); }
+
+        function syncCloseLabels(el) {
+            closeBtnText = el.innerText.trim() || 'CLOSE';
+            const dLabel = document.getElementById('detail-close-label'), lLabel = document.getElementById('lightbox-close-label');
+            if (dLabel) dLabel.textContent = closeBtnText;
+            if (lLabel) lLabel.textContent = closeBtnText;
+        }
+
+        function syncBottomCloseLabel(el) { bottomCloseBtnText = el.innerText.trim() || '閉じる'; el.textContent = bottomCloseBtnText; }
+
+        function applyCloseLabelsUI() {
+            const dLabel = document.getElementById('detail-close-label'), lLabel = document.getElementById('lightbox-close-label'), bLabel = document.getElementById('detail-bottom-close-label');
+            if (dLabel) dLabel.textContent = closeBtnText; if (lLabel) lLabel.textContent = closeBtnText; if (bLabel) bLabel.textContent = bottomCloseBtnText;
+        }
+
+        function applyPopupModeUI() {
+            const btn = document.getElementById('popup-toggle-btn');
+            document.body.setAttribute('data-popup-mode', popupMode);
+            if (!btn) return;
+            if (popupMode === 'detail') { btn.textContent = 'ポップアップ：詳細カード'; btn.classList.add('bg-ink', 'text-canvas', 'border-ink'); btn.classList.remove('bg-canvas', 'text-muted', 'border-line'); }
+            else if (popupMode === 'zoom') { btn.textContent = 'ポップアップ：写真拡大'; btn.classList.add('bg-ink', 'text-canvas', 'border-ink'); btn.classList.remove('bg-canvas', 'text-muted', 'border-line'); }
+            else { btn.textContent = 'ポップアップ：OFF'; btn.classList.remove('bg-ink', 'text-canvas', 'border-ink'); btn.classList.add('bg-canvas', 'text-muted', 'border-line'); }
+        }
+
+        function cyclePopupMode() {
+            if (popupMode === 'detail') popupMode = 'zoom'; else if (popupMode === 'zoom') popupMode = 'off'; else popupMode = 'detail';
+            applyPopupModeUI(); recordHistory();
+        }
+
+        function handleThumbnailClick(slotIndex) {
+            if (popupMode === 'off') return;
+            activeSlotIndex = slotIndex;
+            const previewImg = document.getElementById('preview-img-' + slotIndex), titleEl = document.getElementById('sim-work-title-' + slotIndex), catEl = document.getElementById('sim-work-desc-' + slotIndex);
+            const currentTitle = titleEl ? titleEl.innerText.trim() : `Project Title 0${slotIndex}`, currentCat = catEl ? catEl.innerText.trim() : `0${slotIndex} / Category`;
+            const hasUploadedImg = previewImg && previewImg.src && !previewImg.classList.contains('hidden');
+
+            if (popupMode === 'detail') {
+                const data = projectDetails[slotIndex] || { desc: '詳細説明。', tech: 'HTML5', url: 'https://example.com' };
+                document.getElementById('modal-title').textContent = currentTitle; document.getElementById('modal-category').textContent = `0${slotIndex} — ${currentCat}`;
+                document.getElementById('modal-desc').textContent = data.desc; document.getElementById('modal-tech').textContent = data.tech;
+                document.getElementById('modal-url-preview').textContent = data.url; document.getElementById('modal-link').href = data.url;
+                if (hasUploadedImg) { document.getElementById('modal-preview-img').src = previewImg.src; document.getElementById('modal-preview-img').classList.remove('hidden'); document.getElementById('modal-url-preview').classList.add('hidden'); }
+                else { document.getElementById('modal-preview-img').src = ''; document.getElementById('modal-preview-img').classList.add('hidden'); document.getElementById('modal-url-preview').classList.remove('hidden'); }
+                document.getElementById('detail-modal').classList.remove('hidden'); document.getElementById('detail-modal').classList.add('flex');
+                document.getElementById('detail-modal-box').classList.remove('modal-enter'); void document.getElementById('detail-modal-box').offsetWidth; document.getElementById('detail-modal-box').classList.add('modal-enter');
+            } else if (popupMode === 'zoom') {
+                document.getElementById('lightbox-title').textContent = currentTitle; document.getElementById('lightbox-desc').textContent = `— ${currentCat}`;
+                if (hasUploadedImg) { document.getElementById('lightbox-img').src = previewImg.src; document.getElementById('lightbox-img').classList.remove('hidden'); document.getElementById('lightbox-placeholder').classList.add('hidden'); }
+                else { document.getElementById('lightbox-img').src = ''; document.getElementById('lightbox-img').classList.add('hidden'); document.getElementById('lightbox-placeholder').textContent = `0${slotIndex} / Visual Slot — Enlarged Preview`; document.getElementById('lightbox-placeholder').classList.remove('hidden'); }
+                document.getElementById('lightbox-modal').classList.remove('hidden'); document.getElementById('lightbox-modal').classList.add('flex');
+            }
+        }
+
+        function saveModalEdits(shouldRecord = true) {
+            const dLabel = document.getElementById('detail-close-label'); if (dLabel && dLabel.innerText.trim()) syncCloseLabels(dLabel);
+            const bLabel = document.getElementById('detail-bottom-close-label'); if (bLabel && bLabel.innerText.trim()) syncBottomCloseLabel(bLabel);
+            if (activeSlotIndex && projectDetails[activeSlotIndex]) {
+                projectDetails[activeSlotIndex].desc = document.getElementById('modal-desc').innerText.trim();
+                projectDetails[activeSlotIndex].tech = document.getElementById('modal-tech').innerText.trim();
+                const urlTxt = document.getElementById('modal-url-preview').innerText.trim();
+                if (urlTxt) { projectDetails[activeSlotIndex].url = urlTxt; document.getElementById('modal-link').href = urlTxt; }
+            }
+            if (shouldRecord) recordHistory();
+        }
+
+        function closeAllModals() {
+            saveModalEdits(true);
+            document.getElementById('detail-modal').classList.add('hidden'); document.getElementById('detail-modal').classList.remove('flex');
+            document.getElementById('lightbox-modal').classList.add('hidden'); document.getElementById('lightbox-modal').classList.remove('flex');
+            closePasscodeModal();
+            closeResetModal();
+            activeSlotIndex = null;
+        }
+
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAllModals(); });
+
+        function loadUserImage(event, slotIndex) {
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const maxDim = slotIndex === 'mv' ? 1600 : 1280;
+                    let w = img.width, h = img.height;
+                    if (w > maxDim || h > maxDim) { if (w > h) { h = Math.round(h * (maxDim / w)); w = maxDim; } else { w = Math.round(w * (maxDim / h)); h = maxDim; } }
+                    const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+                    const outputType = (file.type === 'image/png' || file.type === 'image/svg+xml') ? file.type : 'image/jpeg';
+                    const compressedDataUrl = outputType === 'image/jpeg' ? canvas.toDataURL('image/jpeg', 0.82) : canvas.toDataURL(outputType);
+                    const imgEl = document.getElementById('preview-img-' + slotIndex), txtEl = document.getElementById('placeholder-txt-' + slotIndex);
+                    if (imgEl) { imgEl.src = compressedDataUrl; imgEl.classList.remove('hidden'); }
+                    if (txtEl) txtEl.classList.add('hidden');
+                    recordHistory();
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setTheme(themeName, shouldRecord = true) {
+            currentTheme = themeName;
+            if (themeName === 'default') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', themeName);
+            if (shouldRecord) recordHistory();
+        }
+
+        function toggleFontStyle(forceState = null, shouldRecord = true) {
+            isSerif = forceState !== null ? forceState : !isSerif;
+            document.body.classList.toggle('font-serif-mode', isSerif);
+            const btn = document.getElementById('font-toggle-btn'); if (btn) btn.textContent = isSerif ? '書体：明朝体' : '書体：ゴシック';
+            if (shouldRecord) recordHistory();
+        }
+
+        // 5. 保存＆共有機能
+        let toastTimer = null;
+        function showExportToast(message) {
+            const toast = document.getElementById('export-toast'), textEl = document.getElementById('export-toast-text');
+            if (!toast || !textEl) return;
+            textEl.textContent = message; toast.classList.remove('hidden'); toast.classList.add('flex');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('flex'); }, 4000);
+        }
+
+        function requestCleanExport() {
+            const modal = document.getElementById('passcode-modal'), input = document.getElementById('passcode-input'), err = document.getElementById('passcode-error');
+            if (!modal || !input) return;
+            input.value = ''; if (err) err.classList.add('hidden');
+            modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => input.focus(), 50);
+        }
+        function closePasscodeModal() { const modal = document.getElementById('passcode-modal'); if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } }
+        function submitPasscode() {
+            const input = document.getElementById('passcode-input'), err = document.getElementById('passcode-error');
+            if (!input) return;
+            if (input.value.trim() === ADMIN_PASSCODE) { closePasscodeModal(); downloadCurrentHTML('clean'); }
+            else { if (err) err.classList.remove('hidden'); input.value = ''; input.focus(); }
+        }
+
+        async function downloadCurrentHTML(exportType = 'preset') {
+            saveModalEdits(false); syncDocumentTitle();
+            const wasSimMode = isSimMode, wasDrawerOpen = isDrawerOpen;
+            closeAllModals(); closeAllMenus();
+            if (wasSimMode) toggleSimulator(false); if (wasDrawerOpen) toggleDrawer(false);
+            const liveToast = document.getElementById('export-toast'); if (liveToast) { liveToast.classList.add('hidden'); liveToast.classList.remove('flex'); }
+
+            const clone = document.documentElement.cloneNode(true);
+
+            if (exportType === 'clean') {
+                ['#sim-drawer-wrapper', '#global-watermark', '#pointer-drag-ghost', '#export-toast', '#sim-launch-cta-btn', '#passcode-modal', '#reset-modal', '#modal-edit-hint'].forEach(s => { clone.querySelectorAll(s).forEach(el => el.remove()); });
+                clone.querySelectorAll('button[onclick*="openAndActivateSimulator"]').forEach(el => el.remove());
+                clone.querySelectorAll('.section-controls').forEach(el => el.remove());
+                clone.querySelectorAll('.sim-upload-btn').forEach(el => el.remove());
+                clone.querySelectorAll('.img-watermark').forEach(el => el.classList.remove('img-watermark'));
+                clone.querySelectorAll('#works [data-work-card].hidden').forEach(el => el.remove());
+                clone.querySelectorAll('[data-editable], [data-modal-editable], [contenteditable]').forEach(el => {
+                    el.removeAttribute('data-editable');
+                    el.removeAttribute('data-modal-editable');
+                    el.removeAttribute('contenteditable');
+                    el.removeAttribute('spellcheck');
+                });
+
+                const twCdn = clone.querySelector('#tailwind-cdn-script'), twCfg = clone.querySelector('#tailwind-config-script');
+                if (twCdn) twCdn.remove(); if (twCfg) twCfg.remove();
+                clone.querySelectorAll('head style').forEach(st => { if (st.textContent && st.textContent.includes('tailwindcss')) st.remove(); });
+            } else {
+                clone.querySelectorAll('head style').forEach(st => { if ((st.textContent && st.textContent.includes('tailwindcss')) || st.hasAttribute('data-merge-styles')) st.remove(); });
+            }
+
+            const cloneBody = clone.querySelector('body');
+            if (cloneBody) { cloneBody.classList.add('guard-active'); cloneBody.classList.remove('sim-active'); }
+
+            const stateScript = clone.querySelector('#re-standard-state');
+            if (stateScript) {
+                const currentStateObj = { currentTheme, isSerif, popupMode, isMainVisualVisible, closeBtnText, bottomCloseBtnText, worksCount, slotCounter, customSectionCounter, projectDetails };
+                stateScript.textContent = `\n        window.__INITIAL_STATE__ = ${JSON.stringify(currentStateObj, null, 4)};\n    `;
+            }
+
+            const brandEl = document.getElementById('sim-brand-name');
+            const rawBrand = brandEl ? brandEl.innerText.trim() : 're-standard', safeBrand = rawBrand.replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 30) || 're-standard';
+            const fileName = `${safeBrand}_${exportType === 'preset' ? 'preset' : 'production'}.html`;
+
+            const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], { type: 'text/html;charset=utf-8' });
+
+            if (wasSimMode) toggleSimulator(true); if (wasDrawerOpen) toggleDrawer(true);
+
+            const isMobileTouch = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+            if (isMobileTouch && navigator.canShare) {
+                try {
+                    const file = new File([blob], fileName, { type: 'text/html' });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({ title: `${rawBrand} — Web Prototype`, text: 're-standardで作成したWebサイトデータです。「ファイルに保存」やAirDrop、メール添付等を選択してください。', files: [file] });
+                        showExportToast('✓ 共有メニューからファイルを出力しました');
+                        return;
+                    }
+                } catch (err) { if (err && err.name === 'AbortError') return; }
+            }
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+            if (isMobileTouch) {
+                showExportToast(`✓ 「${fileName}」を端末の「ファイル（ダウンロード）」に保存しました`);
+            } else {
+                showExportToast(`✓ 「${fileName}」をダウンロードフォルダに保存しました`);
+            }
+        }
+
+        function sendRoleplayOrder() {
+            const brandEl = document.getElementById('sim-brand-name');
+            const copyEl = document.getElementById('sim-main-copy');
+            const leadEl = document.getElementById('sim-lead-text');
+
+            const brand = brandEl ? brandEl.innerText.trim() : '未設定';
+            const mainCopy = copyEl ? copyEl.innerText.replace(/\n+/g, ' / ').trim() : '（Heroセクション削除済み）';
+            const lead = leadEl ? leadEl.innerText.trim() : '-';
+            const themeLabel = currentTheme === 'warm' ? '生成り（Warm）' : currentTheme === 'charcoal' ? '消炭（Charcoal）' : currentTheme === 'dark' ? '墨黒（Dark）' : '白磁（Standard）';
+            const fontLabel = isSerif ? '明朝体' : 'ゴシック体';
+            const popupLabel = popupMode === 'detail' ? '詳細カード表示' : popupMode === 'zoom' ? '写真拡大のみ' : 'ポップアップなし';
+            const mvLabel = isMainVisualVisible ? 'あり（ON）' : 'なし（OFF）';
+
+            const navItems = Array.from(document.querySelectorAll('header nav a')).map(a => a.innerText.trim()).join(' / ');
+
+            const sectionOrder = Array.from(document.querySelectorAll('#sortable-container .sortable-section:not(.hidden)'))
+                .map((sec, idx) => {
+                    const heading = sec.querySelector('h1, h2');
+                    const headingTxt = heading ? `「${heading.innerText.replace(/\n+/g, ' ').trim()}」` : '';
+                    return `${idx + 1}. ${sec.getAttribute('data-section-name') || sec.id} ${headingTxt}`;
+                })
+                .join('\n');
+
+            const subject = encodeURIComponent(`【re-standard】試着シミュレーターからの制作相談（${brand}）`);
+            const body = encodeURIComponent(
+`re-standard 制作相談窓口 行
+
+以下のイメージで制作の相談・見積もりを希望します。
+（※「プリセット保存」で一時保存したHTMLファイルがある場合は、このメールに添付していただくとスムーズです）
+
+--------------------------------------------------
+■ 屋号・タイトル：
+${brand}
+
+■ ヘッダーメニュー構成：
+${navItems}
+
+■ メインビジュアル枠：
+${mvLabel}
+
+■ メインコピー：
+${mainCopy}
+
+■ 導入文：
+${lead}
+
+■ 表示セクション構成（上から順）：
+${sectionOrder}
+
+■ スタイル・機能設定：
+・背景トーン：${themeLabel}
+・見出し書体：${fontLabel}
+・ギャラリー基本枠数：${worksCount}枠
+・実績タップ時の挙動：${popupLabel}
+--------------------------------------------------
+`
+            );
+            window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+        }
+
+        // 初期UI状態の反映
+        if (savedData) {
+            applySnapshot(savedData);
+            historyStack = [savedData];
+            historyIndex = 0;
+            updateHistoryButtonsUI();
+        } else {
+            setTheme(currentTheme, false);
+            toggleFontStyle(isSerif, false);
+            applyPopupModeUI();
+            toggleMainVisual(isMainVisualVisible, false);
+            applyCloseLabelsUI();
+            setWorksCount(worksCount, false);
+            syncDocumentTitle();
+            recordHistory();
+        }
+
+        
+        // ==========================================================
+        // ★ テキスト試着：初回クリックで全選択・再クリックでカーソル指定・一括削除制御
+        // ==========================================================
+        let activeEditableEl = null;
+
+        function selectAllElementContents(el) {
+            if (!el) return;
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const sel = window.getSelection();
+            if (sel) {
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+
+        document.addEventListener('pointerdown', function(e) {
+            if (!isSimMode) return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (!target) {
+                activeEditableEl = null;
+                return;
+            }
+            if (activeEditableEl !== target) {
+                activeEditableEl = target;
+                target.dataset.justActivated = 'true';
+            } else {
+                delete target.dataset.justActivated;
+            }
+        }, true);
+
+        document.addEventListener('click', function(e) {
+            if (!isSimMode) return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (target && target.dataset.justActivated === 'true') {
+                delete target.dataset.justActivated;
+                requestAnimationFrame(() => {
+                    if (document.activeElement === target) {
+                        selectAllElementContents(target);
+                    }
+                });
+            }
+        }, true);
+
+        document.addEventListener('focusin', function(e) {
+            if (!isSimMode) return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (target && activeEditableEl !== target) {
+                activeEditableEl = target;
+                requestAnimationFrame(() => {
+                    selectAllElementContents(target);
+                });
+            }
+        });
+
+        document.addEventListener('focusout', function(e) {
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (target && activeEditableEl === target) {
+                delete target.dataset.justActivated;
+                activeEditableEl = null;
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (!isSimMode) return;
+            if (e.key !== 'Backspace' && e.key !== 'Delete') return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (!target) return;
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+
+            const selectedStr = sel.toString().replace(/\s+/g, '');
+            const totalStr = (target.innerText || target.textContent || '').replace(/\s+/g, '');
+            if (totalStr.length > 0 && selectedStr === totalStr) {
+                e.preventDefault();
+                target.innerHTML = '';
+                clearTimeout(typingDebounceTimer);
+                if (target.hasAttribute('data-modal-editable')) saveModalEdits(false);
+                syncDocumentTitle();
+                recordHistory();
+            }
+        });
+
+        document.addEventListener('contextmenu', function(e) { if (!isSimMode) e.preventDefault(); });
+    </script>
+</body>
+</html>
