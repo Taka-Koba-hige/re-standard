@@ -587,6 +587,12 @@
         <span class="text-[10px] font-mono tracking-widest text-muted uppercase shrink-0">Moving...</span>
     </div>
 
+    <div id="export-toast" class="fixed top-20 inset-x-4 z-[70] hidden pointer-events-none justify-center transition-opacity duration-300">
+        <div class="bg-ink text-canvas px-4 py-3 rounded-md shadow-2xl text-xs tracking-wider flex items-center gap-2.5 max-w-full">
+            <span id="export-toast-text" class="truncate">コピーしました</span>
+        </div>
+    </div>
+
     <div id="global-watermark" class="fixed inset-0 z-30 pointer-events-none select-none overflow-hidden hidden opacity-90 watermark-pattern">
         <div class="w-full h-full flex flex-col justify-around items-center transform -rotate-12 scale-125">
             <div class="text-xs sm:text-sm tracking-[0.4em] text-muted/25 font-mono whitespace-nowrap">
@@ -905,7 +911,7 @@
             <div class="bg-surface border border-line rounded-md p-8 sm:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
                 <div class="space-y-3 max-w-xl">
                     <h2 data-editable="true" class="text-xl sm:text-2xl font-medium text-ink tracking-wide">制作のご相談・お見積り</h2>
-                    <p data-editable="true" class="text-sm text-muted leading-relaxed">画面上で編集したテキストや構成、カラー設定をそのままメール本文に反映して相談を送ることができます。</p>
+                    <p data-editable="true" class="text-sm text-muted leading-relaxed">画面上で編集したテキストや構成、カラー設定をそのままメール本文に反映して相談を送ることができます。写真を当てはめて試着された場合は、画面のスクリーンショットをメールに添付してお送りください。</p>
                 </div>
                 <div class="shrink-0">
                     <!-- 試着モード中（ON）でも即座にメーラーを起動できるようロックを解除 -->
@@ -999,6 +1005,33 @@
         </div>
     </div>
 
+    <!-- MODAL 5: 制作相談・送信方法選択モーダル（シンプル仕様） -->
+    <div id="contact-modal" onclick="if(event.target === this) closeContactModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
+        <div class="bg-canvas border border-line rounded-md max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-5 modal-enter">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] font-mono tracking-widest text-muted uppercase block">Contact</span>
+                    <h3 class="text-base font-medium text-ink mt-0.5">相談内容の送信</h3>
+                </div>
+                <button type="button" onclick="closeContactModal()" class="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] text-muted hover:text-ink hover:border-ink transition-colors">✕</button>
+            </div>
+            <p class="text-xs text-muted leading-relaxed">
+                ご利用環境に合わせて送信方法をお選びください。
+            </p>
+            <div class="space-y-2 pt-1">
+                <button type="button" onclick="triggerContactAction('mailto')" class="w-full px-4 py-3 bg-ink text-canvas text-xs font-medium tracking-wider rounded-md hover:opacity-80 transition-opacity flex items-center justify-between">
+                    <span>メールアプリで開く</span><span class="font-mono">→</span>
+                </button>
+                <button type="button" onclick="triggerContactAction('gmail')" class="w-full px-4 py-3 bg-surface border border-line text-ink text-xs font-medium tracking-wider rounded-md hover:border-ink transition-colors flex items-center justify-between">
+                    <span>Gmail（ブラウザ）で開く</span><span class="font-mono text-muted">↗</span>
+                </button>
+                <button type="button" onclick="triggerContactAction('copy')" class="w-full px-4 py-3 bg-surface border border-line text-ink text-xs font-medium tracking-wider rounded-md hover:border-ink transition-colors flex items-center justify-between">
+                    <span id="copy-order-btn-label">相談内容と宛先をコピー</span><span class="font-mono text-muted">⎘</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- ドロワー（HTML保存機能を撤去したスリム仕様） -->
     <div id="sim-drawer-wrapper" class="fixed bottom-0 left-0 w-full z-50 flex flex-col items-center pointer-events-none drawer-closed">
         <button type="button" onclick="toggleDrawer()" class="pointer-events-auto h-[36px] px-5 bg-panel backdrop-blur-md border border-b-0 border-line rounded-t-md shadow-sm flex items-center gap-2.5 text-xs text-muted hover:text-ink transition-colors">
@@ -1083,7 +1116,7 @@
 
     <!-- メイン制御スクリプト（Demo Version） -->
     <script>
-        const CONTACT_EMAIL = 'hello@example.com';
+        const CONTACT_EMAIL = 're.standard.tk@gmail.com';
         const AUTOSAVE_KEY = 're_standard_demo_session_v1';
 
         let isDrawerOpen = false;
@@ -1443,7 +1476,7 @@
             const watermark = document.getElementById('global-watermark');
             if (isSimMode) {
                 body.classList.add('sim-active'); body.classList.remove('guard-active');
-                if (toggleBtn) { toggleBtn.textContent = '✓ 試着モード：ON（全テキスト・画像・⠿移動が可能）'; toggleBtn.classList.add('bg-ink', 'text-canvas'); toggleBtn.classList.remove('bg-canvas', 'text-ink'); }
+                if (toggleBtn) { toggleBtn.textContent = '● 試着モード：ON（全テキスト・画像・⠿移動が可能）'; toggleBtn.classList.add('bg-ink', 'text-canvas'); toggleBtn.classList.remove('bg-canvas', 'text-ink'); }
                 if (badge) badge.classList.replace('bg-muted/40', 'bg-emerald-500');
                 if (watermark) watermark.classList.remove('hidden');
             } else {
@@ -1712,6 +1745,7 @@
             document.getElementById('detail-modal').classList.add('hidden'); document.getElementById('detail-modal').classList.remove('flex');
             document.getElementById('lightbox-modal').classList.add('hidden'); document.getElementById('lightbox-modal').classList.remove('flex');
             closeResetModal();
+            closeContactModal();
             activeSlotIndex = null;
         }
 
@@ -1764,7 +1798,16 @@
         }
 
         // 4. 制作相談メール送信機能（デモ版最適化）
-        function sendRoleplayOrder() {
+        
+        let toastTimer = null;
+        function showExportToast(message) {
+            const toast = document.getElementById('export-toast'), textEl = document.getElementById('export-toast-text');
+            if (!toast || !textEl) return;
+            textEl.textContent = message; toast.classList.remove('hidden'); toast.classList.add('flex');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('flex'); }, 4000);
+        }
+        function buildRoleplayOrderData() {
             const brandEl = document.getElementById('sim-brand-name');
             const copyEl = document.getElementById('sim-main-copy');
             const leadEl = document.getElementById('sim-lead-text');
@@ -1787,11 +1830,11 @@
                 })
                 .join('\n');
 
-            const subject = encodeURIComponent(`【re-standard】試着シミュレーターからの制作相談（${brand}）`);
-            const body = encodeURIComponent(
+            const rawSubject = `【re-standard】試着シミュレーターからの制作相談（${brand}）`;
+            const rawBody =
 `re-standard 制作相談窓口 行
 
-試着シミュレーター（デモ版）にて作成した以下の内容で、制作の相談・見積もりを希望します。
+試着シミュレーター（デモ版）にて作成した以下の内容で、制作の相談・見積もりを希望します。\n（※画面に当てはめたお写真はメールに自動添付されないため、お気に入りの状態のスクリーンショットを撮影し、このメールに添付してお送りいただくとイメージの共有がスムーズです）
 
 --------------------------------------------------
 ■ 屋号・タイトル：
@@ -1818,9 +1861,58 @@ ${sectionOrder}
 ・ギャラリー基本枠数：${worksCount}枠
 ・実績タップ時の挙動：${popupLabel}
 --------------------------------------------------
-`
-            );
-            window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+`;
+            return { rawSubject, rawBody };
+        }
+
+        function sendRoleplayOrder() {
+            closeAllMenus();
+            const modal = document.getElementById('contact-modal');
+            const copyLabel = document.getElementById('copy-order-btn-label');
+            if (copyLabel) copyLabel.textContent = '相談内容と宛先をコピー';
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeContactModal() {
+            const modal = document.getElementById('contact-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        async function triggerContactAction(mode) {
+            const { rawSubject, rawBody } = buildRoleplayOrderData();
+            const subject = encodeURIComponent(rawSubject);
+            const body = encodeURIComponent(rawBody);
+
+            if (mode === 'mailto') {
+                closeContactModal();
+                window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+            } else if (mode === 'gmail') {
+                closeContactModal();
+                const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}&su=${subject}&body=${body}`;
+                window.open(gmailUrl, '_blank', 'noopener,noreferrer');
+            } else if (mode === 'copy') {
+                const fullText = `宛先：${CONTACT_EMAIL}\n件名：${rawSubject}\n\n${rawBody}`;
+                try {
+                    await navigator.clipboard.writeText(fullText);
+                } catch (err) {
+                    const ta = document.createElement('textarea');
+                    ta.value = fullText;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(ta);
+                }
+                const copyLabel = document.getElementById('copy-order-btn-label');
+                if (copyLabel) copyLabel.textContent = 'コピーしました（メールやDMに貼付可）';
+                showExportToast(`✓ 相談内容をコピーしました（宛先：${CONTACT_EMAIL}）`);
+                setTimeout(() => closeContactModal(), 900);
+            }
         }
 
         // 初期UI状態の反映
