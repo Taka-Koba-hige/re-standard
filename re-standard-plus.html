@@ -1,0 +1,2738 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth" data-density="normal" data-radius="normal">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE STANDARD PLUS — Web Design & Interactive Simulator</title>
+    <!-- Tailwind CSS (シミュレーター稼働用 / 完成品保存時にはインラインCSSへ自動定着し削除されます) -->
+    <script id="tailwind-cdn-script" src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+JP:wght@400;500;600&family=Shippori+Mincho:wght@500;600&display=swap" rel="stylesheet">
+    <script id="tailwind-config-script">
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Inter"', '"Noto Sans JP"', 'sans-serif'],
+                        serif: ['"Shippori Mincho"', 'serif'],
+                    },
+                    colors: {
+                        canvas: 'var(--bg-canvas)',
+                        ink: 'var(--text-ink)',
+                        muted: 'var(--text-muted)',
+                        line: 'var(--border-line)',
+                        surface: 'var(--bg-surface)',
+                        panel: 'var(--bg-panel)',
+                        accent: 'var(--accent-color)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ==========================================================
+         * ★ OFFLINE-READY STANDALONE CSS ENGINE (No CDN Required)
+         * ========================================================== */
+        *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: var(--border-line); }
+        html { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans CJK JP", "Yu Gothic", sans-serif; }
+        body { margin: 0; line-height: inherit; }
+        hr { height: 0; color: inherit; border-top-width: 1px; }
+        h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; margin: 0; }
+        p, dl, dd, figure, pre { margin: 0; }
+        a { color: inherit; text-decoration: inherit; }
+        b, strong { font-weight: bolder; }
+        code, kbd, samp, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 1em; }
+        small { font-size: 80%; }
+        button, input, optgroup, select, textarea { font-family: inherit; font-size: 100%; font-weight: inherit; line-height: inherit; color: inherit; margin: 0; padding: 0; background-color: transparent; background-image: none; }
+        button, select { text-transform: none; }
+        button, [type='button'], [type='reset'], [type='submit'] { -webkit-appearance: button; cursor: pointer; }
+        img, svg, video, canvas, audio, iframe, embed, object { display: block; vertical-align: middle; }
+        img, video { max-width: 100%; height: auto; }
+        [hidden] { display: none; }
+
+        /* Custom Theme Colors & Fonts */
+        body.font-serif-mode h1, body.font-serif-mode h2, body.font-serif-mode h3 {
+            font-family: 'Shippori Mincho', "Hiragino Mincho ProN", "Yu Mincho", "MS PMincho", serif;
+        }
+        .font-sans { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
+        .font-serif { font-family: 'Shippori Mincho', serif; }
+        .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+        /* Layout & Display */
+        .block { display: block; }
+        .inline-block { display: inline-block; }
+        .inline { display: inline; }
+        .flex { display: flex; }
+        .inline-flex { display: inline-flex; }
+        .grid { display: grid; }
+        .hidden { display: none !important; }
+        .flex-col { flex-direction: column; }
+        .flex-wrap { flex-wrap: wrap; }
+        .shrink-0 { flex-shrink: 0; }
+        .items-start { align-items: flex-start; }
+        .items-end { align-items: flex-end; }
+        .items-center { align-items: center; }
+        .items-baseline { align-items: baseline; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-around { justify-content: space-around; }
+        .justify-end { justify-content: flex-end; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+
+        /* Positioning */
+        .fixed { position: fixed; }
+        .absolute { position: absolute; }
+        .relative { position: relative; }
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .inset-x-4 { left: 1rem; right: 1rem; }
+        .top-0 { top: 0; }
+        .top-2 { top: 0.5rem; }
+        .top-20 { top: 5rem; }
+        .bottom-0 { bottom: 0; }
+        .bottom-3 { bottom: 0.75rem; }
+        .bottom-full { bottom: 100%; }
+        .left-0 { left: 0; }
+        .right-2 { right: 0.5rem; }
+        .right-3 { right: 0.75rem; }
+        .z-10 { z-index: 10; }
+        .z-20 { z-index: 20; }
+        .z-30 { z-index: 30; }
+        .z-40 { z-index: 40; }
+        .z-50 { z-index: 50; }
+        .z-\[60\] { z-index: 60; }
+        .z-\[70\] { z-index: 70; }
+        .z-\[80\] { z-index: 80; }
+
+        /* Sizing & Aspect Ratio */
+        .w-1\.5 { width: 0.375rem; }
+        .w-3\.5 { width: 0.875rem; }
+        .w-4 { width: 1rem; }
+        .w-6 { width: 1.5rem; }
+        .w-52 { width: 13rem; }
+        .w-56 { width: 14rem; }
+        .w-60 { width: 15rem; }
+        .w-64 { width: 16rem; }
+        .w-72 { width: 18rem; }
+        .w-full { width: 100%; }
+        .h-1\.5 { height: 0.375rem; }
+        .h-3\.5 { height: 0.875rem; }
+        .h-4 { height: 1rem; }
+        .h-6 { height: 1.5rem; }
+        .h-16 { height: 4rem; }
+        .h-\[36px\] { height: 36px; }
+        .h-full { height: 100%; }
+        .max-w-sm { max-width: 24rem; }
+        .max-w-xl { max-width: 36rem; }
+        .max-w-2xl { max-width: 42rem; }
+        .max-w-3xl { max-width: 48rem; }
+        .max-w-4xl { max-width: 56rem; }
+        .max-w-5xl { max-width: 64rem; }
+        .max-w-full { max-width: 100%; }
+        .max-w-\[calc\(100vw-24px\)\] { max-width: calc(100vw - 24px); }
+        .aspect-\[21\/9\] { aspect-ratio: 21 / 9; }
+        .aspect-\[16\/9\] { aspect-ratio: 16 / 9; }
+        .aspect-\[16\/10\] { aspect-ratio: 16 / 10; }
+        .aspect-\[4\/3\] { aspect-ratio: 4 / 3; }
+        .aspect-\[1\/1\] { aspect-ratio: 1 / 1; }
+        .aspect-\[3\/4\] { aspect-ratio: 3 / 4; }
+
+        /* Spacing & Gaps */
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .mx-0\.5 { margin-left: 0.125rem; margin-right: 0.125rem; }
+        .my-1 { margin-top: 0.25rem; margin-bottom: 0.25rem; }
+        .ml-1 { margin-left: 0.25rem; }
+        .mr-0\.5 { margin-right: 0.125rem; }
+        .mr-1 { margin-right: 0.25rem; }
+        .mt-0\.5 { margin-top: 0.125rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-3 { margin-top: 0.75rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .gap-1 { gap: 0.25rem; }
+        .gap-1\.5 { gap: 0.375rem; }
+        .gap-2 { gap: 0.5rem; }
+        .gap-2\.5 { gap: 0.625rem; }
+        .gap-3 { gap: 0.75rem; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-8 { gap: 2rem; }
+        .gap-10 { gap: 2.5rem; }
+        .gap-x-8 { column-gap: 2rem; }
+        .gap-y-12 { row-gap: 3rem; }
+
+        .space-y-1 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.25rem; }
+        .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+        .space-y-3 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
+        .space-y-4 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
+        .space-y-5 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.25rem; }
+        .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.5rem; }
+        .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: 2rem; }
+        .space-y-10 > :not([hidden]) ~ :not([hidden]) { margin-top: 2.5rem; }
+        .space-y-28 > :not([hidden]) ~ :not([hidden]) { margin-top: 7rem; }
+
+        /* Padding */
+        .p-1 { padding: 0.25rem; }
+        .p-1\.5 { padding: 0.375rem; }
+        .p-3 { padding: 0.75rem; }
+        .p-4 { padding: 1rem; }
+        .p-5 { padding: 1.25rem; }
+        .p-6 { padding: 1.5rem; }
+        .p-8 { padding: 2rem; }
+        .px-1 { padding-left: 0.25rem; padding-right: 0.25rem; }
+        .px-1\.5 { padding-left: 0.375rem; padding-right: 0.375rem; }
+        .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; }
+        .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .px-3\.5 { padding-left: 0.875rem; padding-right: 0.875rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .px-7 { padding-left: 1.75rem; padding-right: 1.75rem; }
+        .px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+        .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+        .py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-2\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-3\.5 { padding-top: 0.875rem; padding-bottom: 0.875rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .py-5 { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+        .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+        .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+        .pt-0\.5 { padding-top: 0.125rem; }
+        .pt-1 { padding-top: 0.25rem; }
+        .pt-2 { padding-top: 0.5rem; }
+        .pt-3 { padding-top: 0.75rem; }
+        .pt-4 { padding-top: 1rem; }
+        .pt-6 { padding-top: 1.5rem; }
+        .pt-12 { padding-top: 3rem; }
+        .pt-28 { padding-top: 7rem; }
+        .pb-3 { padding-bottom: 0.75rem; }
+        .pb-4 { padding-bottom: 1rem; }
+        .pb-28 { padding-bottom: 7rem; }
+
+        /* Typography */
+        .text-\[9px\] { font-size: 9px; }
+        .text-\[10px\] { font-size: 10px; }
+        .text-\[11px\] { font-size: 11px; }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .text-base { font-size: 1rem; line-height: 1.5rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-2xl { font-size: 1.5rem; line-height: 2rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .leading-none { line-height: 1; }
+        .leading-\[1\.5\] { line-height: 1.5; }
+        .leading-relaxed { line-height: 1.625; }
+        .leading-loose { line-height: 2; }
+        .tracking-wide { letter-spacing: 0.025em; }
+        .tracking-wider { letter-spacing: 0.05em; }
+        .tracking-widest { letter-spacing: 0.1em; }
+        .tracking-\[0\.15em\] { letter-spacing: 0.15em; }
+        .tracking-\[0\.2em\] { letter-spacing: 0.2em; }
+        .tracking-\[0\.25em\] { letter-spacing: 0.25em; }
+        .tracking-\[0\.35em\] { letter-spacing: 0.35em; }
+        .tracking-\[0\.4em\] { letter-spacing: 0.4em; }
+        .uppercase { text-transform: uppercase; }
+        .underline { text-decoration-line: underline; }
+        .underline-offset-4 { text-underline-offset: 4px; }
+        .text-left { text-align: left; }
+        .text-center { text-align: center; }
+        .whitespace-nowrap { white-space: nowrap; }
+        .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .list-none { list-style-type: none; }
+        details > summary::-webkit-details-marker { display: none; }
+
+        /* Colors & Backgrounds */
+        .text-ink { color: var(--text-ink); }
+        .text-canvas { color: var(--bg-canvas); }
+        .text-muted { color: var(--text-muted); }
+        .text-muted\/70 { color: color-mix(in srgb, var(--text-muted) 70%, transparent); }
+        .text-muted\/25 { color: color-mix(in srgb, var(--text-muted) 25%, transparent); }
+        .text-line { color: var(--border-line); }
+        .text-red-600 { color: #dc2626; }
+
+        .bg-canvas { background-color: var(--bg-canvas); }
+        .bg-canvas\/90 { background-color: color-mix(in srgb, var(--bg-canvas) 90%, transparent); }
+        .bg-surface { background-color: var(--bg-surface); }
+        .bg-surface\/95 { background-color: color-mix(in srgb, var(--bg-surface) 95%, transparent); }
+        .bg-panel { background-color: var(--bg-panel); }
+        .bg-ink { background-color: var(--text-ink); }
+        .bg-ink\/40 { background-color: color-mix(in srgb, var(--text-ink) 40%, transparent); }
+        .bg-muted\/40 { background-color: color-mix(in srgb, var(--text-muted) 40%, transparent); }
+        .bg-black\/80 { background-color: rgba(0, 0, 0, 0.8); }
+        .bg-emerald-500 { background-color: #10b981; }
+
+        /* Borders & Dividers */
+        .border { border-width: 1px; }
+        .border-t { border-top-width: 1px; }
+        .border-b { border-bottom-width: 1px; }
+        .border-b-0 { border-bottom-width: 0px; }
+        .border-r { border-right-width: 1px; }
+        .border-line { border-color: var(--border-line); }
+        .border-line\/60 { border-color: color-mix(in srgb, var(--border-line) 60%, transparent); }
+        .border-ink { border-color: var(--text-ink); }
+
+        .divide-y > :not([hidden]) ~ :not([hidden]) { border-top-width: 1px; border-color: var(--border-line); }
+        .divide-line > :not([hidden]) ~ :not([hidden]) { border-color: var(--border-line); }
+
+        .rounded { border-radius: 0.25rem; }
+        .rounded-md { border-radius: 0.375rem; }
+        .rounded-t-md { border-top-left-radius: 0.375rem; border-top-right-radius: 0.375rem; }
+        .rounded-full { border-radius: 9999px; }
+
+        /* Effects */
+        .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .shadow-\[0_-8px_30px_rgba\(0\,0\,0\,0\.06\)\] { box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.06); }
+        .opacity-90 { opacity: 0.9; }
+        .backdrop-blur-\[2px\] { backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+        .backdrop-blur-sm { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        .backdrop-blur-md { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .overflow-hidden { overflow: hidden; }
+        .overflow-x-auto { overflow-x: auto; }
+        .object-cover { object-fit: cover; }
+        .object-contain { object-fit: contain; }
+        .pointer-events-none { pointer-events: none; }
+        .pointer-events-auto { pointer-events: auto; }
+        .select-none { user-select: none; -webkit-user-select: none; }
+        .cursor-pointer { cursor: pointer; }
+        .cursor-default { cursor: default; }
+        .cursor-zoom-out { cursor: zoom-out; }
+        .scroll-smooth { scroll-behavior: smooth; }
+        .transition-all { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }
+        .transition-colors { transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease; }
+        .transition-opacity { transition: opacity 0.15s ease; }
+        .transition-transform { transition: transform 0.15s ease; }
+        .duration-200 { transition-duration: 200ms; }
+        .duration-300 { transition-duration: 300ms; }
+
+        /* States */
+        .selection\:bg-ink ::selection, .selection\:bg-ink::selection { background-color: var(--text-ink); color: var(--bg-canvas); }
+        .hover\:bg-surface:hover { background-color: var(--bg-surface); }
+        .hover\:bg-ink:hover { background-color: var(--text-ink); }
+        .hover\:text-ink:hover { color: var(--text-ink); }
+        .hover\:text-canvas:hover { color: var(--bg-canvas); }
+        .hover\:text-red-600:hover { color: #dc2626; }
+        .hover\:border-ink:hover { border-color: var(--text-ink); }
+        .hover\:opacity-75:hover { opacity: 0.75; }
+        .hover\:opacity-80:hover { opacity: 0.8; }
+        .hover\:opacity-85:hover { opacity: 0.85; }
+        .focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
+        .focus\:border-ink:focus { border-color: var(--text-ink); }
+        .group:hover .group-hover\:underline { text-decoration-line: underline; }
+        .group:hover .group-hover\:bg-ink { background-color: var(--text-ink); }
+        .group:hover .group-hover\:text-canvas { color: var(--bg-canvas); }
+        .group:hover .group-hover\:border-ink { border-color: var(--text-ink); }
+        .group:hover .group-hover\:scale-105 { transform: scale(1.05); }
+        .group:hover .group-hover\:scale-\[1\.03\] { transform: scale(1.03); }
+        details[open] .group-open\:rotate-45 { transform: rotate(45deg); }
+
+        /* Responsive Breakpoints */
+        @media (min-width: 640px) {
+            .sm\:inline { display: inline; }
+            .sm\:flex-row { flex-direction: row; }
+            .sm\:items-center { align-items: center; }
+            .sm\:items-end { align-items: flex-end; }
+            .sm\:w-auto { width: auto; }
+            .sm\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+            .sm\:col-span-1 { grid-column: span 1 / span 1; }
+            .sm\:col-span-4 { grid-column: span 4 / span 4; }
+            .sm\:col-span-7 { grid-column: span 7 / span 7; }
+            .sm\:col-span-8 { grid-column: span 8 / span 8; }
+            .sm\:gap-8 { gap: 2rem; }
+            .sm\:p-6 { padding: 1.5rem; }
+            .sm\:p-8 { padding: 2rem; }
+            .sm\:p-10 { padding: 2.5rem; }
+            .sm\:p-14 { padding: 3.5rem; }
+            .sm\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .sm\:text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+            .sm\:text-base { font-size: 1rem; line-height: 1.5rem; }
+            .sm\:text-2xl { font-size: 1.5rem; line-height: 2rem; }
+            .sm\:text-5xl { font-size: 3rem; line-height: 1; }
+        }
+        @media (min-width: 768px) {
+            .md\:flex-row { flex-direction: row; }
+            .md\:items-center { align-items: center; }
+            .md\:grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+            .md\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+            .md\:col-span-4 { grid-column: span 4 / span 4; }
+            .md\:col-span-8 { grid-column: span 8 / span 8; }
+            .md\:order-1 { order: 1; }
+            .md\:order-2 { order: 2; }
+            .md\:divide-y-0 > :not([hidden]) ~ :not([hidden]) { border-top-width: 0px; }
+            .md\:divide-x > :not([hidden]) ~ :not([hidden]) { border-left-width: 1px; border-color: var(--border-line); }
+            .md\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+            .md\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+            .md\:pl-8 { padding-left: 2rem; }
+            .md\:pr-8 { padding-right: 2rem; }
+        }
+
+        /* ==========================================================
+         * ★ カラーテーマ ＆ トンマナに沿った日本の伝統色アクセント
+         * ========================================================== */
+        :root {
+            --bg-canvas: #fafaf9;
+            --text-ink: #171717;
+            --text-muted: #737373;
+            --border-line: #e5e5e4;
+            --bg-surface: #f4f4f2;
+            --bg-panel: rgba(244, 244, 242, 0.96);
+            --accent-color: var(--text-ink);
+            --accent-fg: var(--bg-canvas);
+        }
+        [data-theme="warm"] {
+            --bg-canvas: #f6f3ec;
+            --text-ink: #26231e;
+            --text-muted: #787267;
+            --border-line: #e2ddd2;
+            --bg-surface: #ede8dd;
+            --bg-panel: rgba(237, 232, 221, 0.96);
+        }
+        [data-theme="charcoal"] {
+            --bg-canvas: #282725;
+            --text-ink: #f0eee9;
+            --text-muted: #9e9b93;
+            --border-line: #3d3b38;
+            --bg-surface: #32312e;
+            --bg-panel: rgba(40, 39, 37, 0.96);
+        }
+        [data-theme="dark"] {
+            --bg-canvas: #141413;
+            --text-ink: #f4f4f0;
+            --text-muted: #8e8e8a;
+            --border-line: #2a2a28;
+            --bg-surface: #1e1e1c;
+            --bg-panel: rgba(30, 30, 28, 0.96);
+        }
+
+        /* 差し色（落ち着いた日本の伝統色・建築トーン） */
+        html[data-accent="moss"] {
+            --accent-color: #2d4b3e; /* 千歳緑（深い森の緑） */
+            --accent-fg: #fafaf9;
+        }
+        html[data-accent="indigo"] {
+            --accent-color: #2b3d54; /* 藍鉄（落ち着きのある深い藍） */
+            --accent-fg: #fafaf9;
+        }
+        html[data-accent="suou"] {
+            --accent-color: #6e2c30; /* 蘇芳（品格のあるくすんだ深紅・臙脂） */
+            --accent-fg: #fafaf9;
+        }
+        html[data-accent="ochre"] {
+            --accent-color: #78522b; /* 琥珀・黄土（珈琲や木・土の温もり） */
+            --accent-fg: #fafaf9;
+        }
+        /* ダーク系テーマ時の差し色視認性補正 */
+        html[data-theme="charcoal"][data-accent="moss"], html[data-theme="dark"][data-accent="moss"] { --accent-color: #3d6856; }
+        html[data-theme="charcoal"][data-accent="indigo"], html[data-theme="dark"][data-accent="indigo"] { --accent-color: #3d5675; }
+        html[data-theme="charcoal"][data-accent="suou"], html[data-theme="dark"][data-accent="suou"] { --accent-color: #8c3b40; }
+        html[data-theme="charcoal"][data-accent="ochre"], html[data-theme="dark"][data-accent="ochre"] { --accent-color: #966838; }
+
+        /* プライマリボタン・差し色連動クラス */
+        .btn-primary-accent {
+            background-color: var(--accent-color) !important;
+            color: var(--accent-fg) !important;
+        }
+        .badge-accent-line {
+            border-color: var(--accent-color) !important;
+            color: var(--accent-color) !important;
+        }
+        [data-accent-swatch].is-selected {
+            outline: 2px solid var(--text-ink);
+            outline-offset: 2px;
+            transform: scale(1.12);
+        }
+
+        /* ==========================================================
+         * ★ 角丸（Radius）＆ 余白密度（Density）の建築的微調整エンジン
+         * ========================================================== */
+        :root {
+            --radius-box: 6px;
+            --radius-btn: 6px;
+        }
+        /* 直角 (0px) */
+        html[data-radius="sharp"] {
+            --radius-box: 0px;
+            --radius-btn: 0px;
+        }
+        /* 標準 (6px) */
+        html[data-radius="normal"] {
+            --radius-box: 6px;
+            --radius-btn: 6px;
+        }
+        /* やわらか (過度なカプセル型を避け、品のいい10px〜12pxに抑制) */
+        html[data-radius="soft"] {
+            --radius-box: 12px;
+            --radius-btn: 10px;
+        }
+
+        .dyn-radius-box { border-radius: var(--radius-box) !important; }
+        .dyn-radius-btn { border-radius: var(--radius-btn) !important; }
+
+        /* 余白密度（狭・標準・広）の連動 */
+        html[data-density="compact"] #sortable-container > .sortable-section:not([hidden]) ~ .sortable-section:not([hidden]) {
+            margin-top: 4rem !important;
+        }
+        html[data-density="compact"] #sortable-container > .sortable-section {
+            padding-top: 1.75rem !important;
+        }
+        html[data-density="compact"] #works-grid {
+            row-gap: 1.75rem !important;
+            column-gap: 1.25rem !important;
+        }
+        html[data-density="compact"] #spec-dl > div {
+            padding-top: 0.75rem !important;
+            padding-bottom: 0.75rem !important;
+        }
+
+        html[data-density="normal"] #sortable-container > .sortable-section:not([hidden]) ~ .sortable-section:not([hidden]) {
+            margin-top: 7rem !important;
+        }
+
+        html[data-density="spacious"] #sortable-container > .sortable-section:not([hidden]) ~ .sortable-section:not([hidden]) {
+            margin-top: 10.5rem !important;
+        }
+        html[data-density="spacious"] #sortable-container > .sortable-section {
+            padding-top: 4rem !important;
+        }
+        html[data-density="spacious"] #works-grid {
+            row-gap: 4.25rem !important;
+            column-gap: 2.75rem !important;
+        }
+        html[data-density="spacious"] #spec-dl > div {
+            padding-top: 1.75rem !important;
+            padding-bottom: 1.75rem !important;
+        }
+
+        /* 基本挙動・ドラッグ・透かし */
+        html, body { overscroll-behavior-y: none; }
+        html.is-dragging-scroll, html.is-dragging-scroll body {
+            scroll-behavior: auto !important;
+            overscroll-behavior: none !important;
+            touch-action: none !important;
+        }
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-ink);
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.8;
+            letter-spacing: 0.02em;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        @keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-enter { animation: fade-in 0.2s ease-out forwards; }
+
+        body.guard-active { -webkit-user-select: none; user-select: none; }
+        body.guard-active img { -webkit-user-drag: none; }
+
+        /* 試着モード時の編集ハイライト＆サブコントロール表示 */
+        .sim-active [data-editable="true"], .sim-active [data-modal-editable="true"] {
+            outline: 1px dashed rgba(115, 115, 115, 0.55);
+            outline-offset: 3px;
+            border-radius: 3px;
+            cursor: text !important;
+            transition: outline 0.15s ease, background-color 0.15s ease;
+        }
+        .sim-active [data-editable="true"]:hover, .sim-active [data-editable="true"]:focus,
+        .sim-active [data-modal-editable="true"]:hover, .sim-active [data-modal-editable="true"]:focus {
+            outline: 1.5px solid var(--text-ink);
+            background-color: rgba(128, 128, 128, 0.08);
+        }
+        .sim-active .btn-primary-accent [data-editable="true"]:focus {
+            outline-color: var(--bg-canvas);
+        }
+
+        .sortable-section { position: relative; transition: opacity 0.2s ease; }
+        .sim-active .sortable-section:hover {
+            outline: 1px dashed rgba(115, 115, 115, 0.35);
+            outline-offset: 10px;
+            border-radius: 6px;
+        }
+        .section-controls { display: none; user-select: none; }
+        .sim-active .section-controls { display: inline-flex; }
+        .sim-only-item { display: none !important; }
+        .sim-active .sim-only-item { display: inline-flex !important; }
+
+        .drag-handle { cursor: grab; touch-action: none !important; user-select: none !important; }
+        .drag-handle:active { cursor: grabbing; }
+
+        #pointer-drag-ghost {
+            position: fixed; left: 50%; transform: translateX(-50%) scale(1.02);
+            width: min(92vw, 640px); height: 50px; z-index: 9999;
+            background-color: var(--bg-canvas); color: var(--text-ink);
+            border: 1.5px solid var(--text-ink); border-radius: 8px;
+            box-shadow: 0 18px 38px rgba(0,0,0,0.20);
+            display: none; align-items: center; justify-content: space-between;
+            padding: 0 18px; pointer-events: none;
+        }
+        .sortable-section.is-pointer-placeholder {
+            opacity: 0.32 !important; outline: 2px dashed var(--text-ink) !important;
+            outline-offset: 8px; background-color: rgba(128, 128, 128, 0.05); border-radius: 8px;
+        }
+
+        .watermark-pattern { background-image: repeating-linear-gradient(-28deg, transparent, transparent 80px, rgba(128,128,128,0.04) 80px, rgba(128,128,128,0.04) 81px); }
+        .img-watermark::after {
+            content: "SAMPLE PREVIEW — © re-standard"; position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; letter-spacing: 0.2em; color: var(--text-ink);
+            opacity: 0.22; transform: rotate(-18deg); pointer-events: none; user-select: none; font-weight: 600;
+        }
+
+        body[data-popup-mode="detail"] .work-image-slot { cursor: pointer; }
+        body[data-popup-mode="zoom"] .work-image-slot { cursor: zoom-in; }
+        body[data-popup-mode="off"] .work-image-slot { cursor: default; }
+
+        #sim-drawer-wrapper { transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1); }
+        .drawer-closed { transform: translateY(calc(100% - 36px)); }
+        .drawer-open { transform: translateY(0); }
+
+        .history-btn:disabled { opacity: 0.28; cursor: not-allowed; pointer-events: none; }
+        .history-btn:not(:disabled):active { transform: translateY(1px); }
+    </style>
+</head>
+<body data-popup-mode="detail" class="selection:bg-ink selection:text-canvas guard-active" ondragstart="if(!isSimMode && event.target.tagName==='IMG') return false;">
+
+    <!-- ドラッグ移動ゴーストバー -->
+    <div id="pointer-drag-ghost">
+        <div class="flex items-center gap-2.5 truncate">
+            <span class="text-base leading-none">⠿</span>
+            <span id="pointer-ghost-label" class="text-xs font-medium tracking-wider truncate">Section</span>
+        </div>
+        <span class="text-[10px] font-mono tracking-widest text-muted uppercase shrink-0">Moving...</span>
+    </div>
+
+    <!-- トースト通知 -->
+    <div id="export-toast" class="fixed top-20 inset-x-4 z-[70] hidden pointer-events-none justify-center transition-opacity duration-300">
+        <div class="btn-primary-accent px-4 py-3 dyn-radius-box shadow-2xl text-xs tracking-wider flex items-center gap-2.5 max-w-full">
+            <span id="export-toast-text" class="truncate">ファイルを保存しました</span>
+        </div>
+    </div>
+
+    <!-- 全体透かし -->
+    <div id="global-watermark" class="fixed inset-0 z-30 pointer-events-none select-none overflow-hidden hidden opacity-90 watermark-pattern">
+        <div class="w-full h-full flex flex-col justify-around items-center transform -rotate-12 scale-125">
+            <div class="text-xs sm:text-sm tracking-[0.4em] text-muted/25 font-mono whitespace-nowrap">PREVIEW ONLY — © re-standard DESIGN TEMPLATE — DO NOT COPY</div>
+            <div class="text-xs sm:text-sm tracking-[0.4em] text-muted/25 font-mono whitespace-nowrap">© re-standard — ROLEPLAY SIMULATOR MODE — PROTECTED LAYOUT</div>
+            <div class="text-xs sm:text-sm tracking-[0.4em] text-muted/25 font-mono whitespace-nowrap">PREVIEW ONLY — © re-standard DESIGN TEMPLATE — DO NOT COPY</div>
+        </div>
+    </div>
+
+    <!-- リンク設定ミニポップオーバー -->
+    <div id="link-editor-popover" onclick="event.stopPropagation()" class="hidden fixed z-[80] bg-canvas border border-line dyn-radius-box p-3.5 shadow-xl space-y-2.5 text-xs w-72">
+        <div class="flex justify-between items-center text-[10px] text-muted uppercase font-mono border-b border-line pb-1.5">
+            <span>Link / URL Setting</span>
+            <button type="button" onclick="closeLinkEditor()" class="hover:text-ink px-1">✕</button>
+        </div>
+        <div class="space-y-1">
+            <label class="text-[10px] text-muted block">飛び先URL（または #section / tel:）</label>
+            <input type="text" id="link-url-input" placeholder="https://... または #works" onkeydown="if(event.key==='Enter') applyLinkChanges()" class="w-full px-2.5 py-1.5 bg-surface border border-line dyn-radius-box font-mono text-xs text-ink focus:outline-none focus:border-ink">
+        </div>
+        <div class="flex justify-between items-center pt-1">
+            <label class="flex items-center gap-1.5 text-muted cursor-pointer text-[11px]">
+                <input type="checkbox" id="link-blank-check"> <span>別タブで開く</span>
+            </label>
+            <button type="button" onclick="applyLinkChanges()" class="px-3.5 py-1 btn-primary-accent dyn-radius-btn text-[11px] font-medium">適用</button>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="fixed top-0 left-0 w-full z-40 bg-canvas/90 backdrop-blur-sm border-b border-line transition-colors">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+            <a href="#" onclick="if(isSimMode) event.preventDefault()" onblur="syncDocumentTitle()" id="sim-brand-name" data-editable="true" class="text-sm font-semibold tracking-[0.15em] uppercase text-ink shrink-0">
+                THE STANDARD
+            </a>
+            <div class="flex items-center gap-2 overflow-x-auto py-1">
+                <nav id="sim-header-nav" class="flex items-center gap-4 sm:gap-8 text-xs sm:text-sm text-muted">
+                    <a href="#philosophy" onclick="if(isSimMode) event.preventDefault()" data-editable="true" class="hover:text-ink transition-colors whitespace-nowrap">Philosophy</a>
+                    <a href="#works" onclick="if(isSimMode) event.preventDefault()" data-editable="true" class="hover:text-ink transition-colors whitespace-nowrap">Works</a>
+                    <a href="#spec" onclick="if(isSimMode) event.preventDefault()" data-editable="true" class="hover:text-ink transition-colors whitespace-nowrap">Specification</a>
+                    <a href="#contact" onclick="if(isSimMode) event.preventDefault()" data-editable="true" class="text-ink font-medium underline underline-offset-4 hover:opacity-75 transition-opacity whitespace-nowrap">Contact</a>
+                </nav>
+                <div class="section-controls items-center gap-1 ml-2 shrink-0">
+                    <button type="button" onclick="addHeaderNavItem()" class="px-2 py-1 bg-surface border border-line dyn-radius-btn text-[10px] text-ink hover:border-ink" title="ナビ項目を追加">＋項目</button>
+                    <button type="button" onclick="syncHeaderNavWithSections()" class="px-2 py-1 bg-surface border border-line dyn-radius-btn text-[10px] text-muted hover:text-ink" title="現在のセクション構成とナビを自動同期">↻同期</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main id="sortable-container" class="max-w-5xl mx-auto px-6 pt-28 pb-28 space-y-28">
+
+        <!-- 00. MAIN VISUAL -->
+        <section id="main-visual" data-section-name="Main Visual（メインビジュアル枠）" class="sortable-section hidden space-y-4 pt-2">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">00 / Main Visual</span>
+                <div class="section-controls items-center gap-1.5 z-20 flex-wrap">
+                    <div class="inline-flex items-center bg-surface border border-line dyn-radius-btn px-2 py-1 gap-1 text-[10px] text-muted mr-1">
+                        <span class="font-mono uppercase">Ratio:</span>
+                        <button type="button" onclick="setMainVisualRatio('21/9')" data-mv-ratio-btn="21/9" class="px-1.5 py-0.5 rounded bg-ink text-canvas font-medium">21:9</button>
+                        <button type="button" onclick="setMainVisualRatio('16/9')" data-mv-ratio-btn="16/9" class="px-1.5 py-0.5 rounded hover:text-ink">16:9</button>
+                        <button type="button" onclick="setMainVisualRatio('4/3')" data-mv-ratio-btn="4/3" class="px-1.5 py-0.5 rounded hover:text-ink">4:3</button>
+                    </div>
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                    <button type="button" onclick="toggleMainVisual(false)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 非表示</button>
+                </div>
+            </div>
+            <div id="mv-container" class="aspect-[21/9] w-full bg-surface border border-line dyn-radius-box overflow-hidden flex items-center justify-center relative img-watermark">
+                <img id="preview-img-mv" class="w-full h-full object-cover hidden select-none pointer-events-none" alt="Main Visual">
+                <div id="placeholder-txt-mv" class="text-center px-6 space-y-1">
+                    <span data-editable="true" class="text-xs tracking-[0.25em] text-muted uppercase block">MAIN VISUAL / KEY PHOTOGRAPH SLOT</span>
+                    <span data-editable="true" class="text-[11px] text-muted/70 block">コーポレート・店舗の象徴となるワイド写真を配置できます（21:9 / 16:9 / 4:3）</span>
+                </div>
+                <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 dyn-radius-btn cursor-pointer hover:border-ink shadow-sm">
+                    <span>＋ メイン写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, 'mv')">
+                </label>
+            </div>
+            <div class="flex justify-between items-center text-xs text-muted pt-0.5">
+                <span data-editable="true">Key Visual — Brand Atmosphere / Architectural Overview</span>
+                <span data-editable="true" class="font-mono text-[11px]">FIG. 00</span>
+            </div>
+        </section>
+
+        <!-- HERO -->
+        <section id="hero" data-section-name="Hero（キャッチコピー・導入）" class="sortable-section space-y-10 pt-4">
+            <div class="flex items-center justify-between gap-2">
+                <p id="sim-sub-label" data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase inline-block">Web Design & Digital Architecture</p>
+                <div class="section-controls items-center gap-1 z-20">
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                </div>
+            </div>
+            <h1 id="sim-main-copy" data-editable="true" class="text-3xl sm:text-5xl font-medium tracking-wide text-ink leading-[1.5] max-w-3xl">
+                かわらず、ずっと。<br>使い続けられる標準をつくる。
+            </h1>
+            <p id="sim-lead-text" data-editable="true" class="text-sm sm:text-base text-muted max-w-2xl leading-loose">
+                流行の装飾や過剰なシステムに頼らず、情報の整理と確かな基礎技術だけで構築されたWebサイト。誰にとっても迷いなく使えて、10年後も破綻しない「用の美」を設計の基準としています。
+            </p>
+            <div class="pt-4 flex flex-wrap items-center gap-3">
+                <div class="inline-flex items-center gap-1.5">
+                    <a id="hero-primary-btn" href="#works" onclick="if(isSimMode) event.preventDefault()" class="btn-primary-accent inline-flex items-center gap-3 px-7 py-3.5 text-xs tracking-[0.15em] uppercase dyn-radius-btn hover:opacity-85 transition-opacity">
+                        <span data-editable="true">View Archives</span><span>↓</span>
+                    </a>
+                    <button type="button" onclick="openLinkEditor(event, document.getElementById('hero-primary-btn'))" class="sim-only-item px-2 py-2 bg-surface border border-line dyn-radius-btn text-[10px] text-muted hover:text-ink" title="ボタンのリンク先URLを変更">🔗</button>
+                </div>
+                <button type="button" id="sim-launch-cta-btn" onclick="if(!isSimMode) openAndActivateSimulator()" class="inline-flex items-center gap-2 px-5 py-3.5 border border-line bg-surface text-ink text-xs tracking-wider dyn-radius-btn hover:border-ink transition-colors">
+                    <span data-editable="true">✎ この画面で「試着（並び替え・文字・画像編集）」を体験する</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 01. PHILOSOPHY -->
+        <section id="philosophy" data-section-name="Philosophy（設計の原則）" class="sortable-section space-y-10 border-t border-line pt-12">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">01 / Philosophy</span>
+                <div class="section-controls items-center gap-1.5 z-20 flex-wrap justify-end">
+                    <div class="inline-flex items-center bg-surface border border-line dyn-radius-btn px-2 py-1 gap-1 text-[10px] text-muted">
+                        <span class="font-mono uppercase">Cols:</span>
+                        <button type="button" onclick="setPhilosophyCols(1)" data-phil-cols-btn="1" class="px-1.5 py-0.5 rounded hover:text-ink">1</button>
+                        <button type="button" onclick="setPhilosophyCols(2)" data-phil-cols-btn="2" class="px-1.5 py-0.5 rounded hover:text-ink">2</button>
+                        <button type="button" onclick="setPhilosophyCols(3)" data-phil-cols-btn="3" class="px-1.5 py-0.5 rounded bg-ink text-canvas font-medium">3</button>
+                        <button type="button" onclick="setPhilosophyCols(4)" data-phil-cols-btn="4" class="px-1.5 py-0.5 rounded hover:text-ink">4</button>
+                    </div>
+                    <button type="button" onclick="addPhilosophyCard()" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink hover:border-ink">＋ 特徴追加</button>
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div class="md:col-span-4"><h2 data-editable="true" class="text-xl font-medium tracking-wide">設計の3原則</h2></div>
+                <div data-editable="true" class="md:col-span-8 text-sm sm:text-base text-muted leading-loose">
+                    何かを足すことで個性を出すのではなく、不要な要素を削ぎ落とすことで本来の目的を浮かび上がらせます。
+                </div>
+            </div>
+            <div id="philosophy-grid" class="grid grid-cols-1 md:grid-cols-3 border-t border-b border-line divide-y md:divide-y-0 md:divide-x divide-line">
+                <!-- Philosophy cards rendered by JS -->
+            </div>
+        </section>
+
+        <!-- 02. WORKS -->
+        <section id="works" data-section-name="Works（制作実績・ギャラリー）" class="sortable-section space-y-10 border-t border-line pt-12">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">02 / Selected Works & Gallery</span>
+                <div class="section-controls items-center gap-1.5 z-20 flex-wrap justify-end">
+                    <div class="inline-flex items-center bg-surface border border-line dyn-radius-btn px-2 py-1 gap-1 text-[10px] text-muted">
+                        <span class="font-mono uppercase">Cols:</span>
+                        <button type="button" onclick="setWorksCols(2)" data-works-cols-btn="2" class="px-1.5 py-0.5 rounded bg-ink text-canvas font-medium">2</button>
+                        <button type="button" onclick="setWorksCols(3)" data-works-cols-btn="3" class="px-1.5 py-0.5 rounded hover:text-ink">3</button>
+                    </div>
+                    <div class="inline-flex items-center bg-surface border border-line dyn-radius-btn px-2 py-1 gap-1 text-[10px] text-muted">
+                        <span class="font-mono uppercase">Ratio:</span>
+                        <button type="button" onclick="setWorksRatio('16/10')" data-works-ratio-btn="16/10" class="px-1.5 py-0.5 rounded bg-ink text-canvas font-medium">16:10</button>
+                        <button type="button" onclick="setWorksRatio('1/1')" data-works-ratio-btn="1/1" class="px-1.5 py-0.5 rounded hover:text-ink">1:1</button>
+                        <button type="button" onclick="setWorksRatio('3/4')" data-works-ratio-btn="3/4" class="px-1.5 py-0.5 rounded hover:text-ink">3:4</button>
+                    </div>
+                    <button type="button" onclick="addWorkCard()" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink hover:border-ink">＋ 枠追加</button>
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div><h2 data-editable="true" class="text-xl font-medium tracking-wide">制作実績・プロトタイプ</h2></div>
+                <p id="works-guide-text" data-editable="true" class="text-xs text-muted">※ 各項目を選択すると詳細が表示されます</p>
+            </div>
+
+            <div id="works-grid" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
+                <!-- Works cards rendered by JS -->
+            </div>
+        </section>
+
+        <!-- 03. SPECIFICATION -->
+        <section id="spec" data-section-name="Specification（標準仕様・概要）" class="sortable-section space-y-10 border-t border-line pt-12">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">03 / Specification</span>
+                <div class="section-controls items-center gap-1 z-20">
+                    <button type="button" onclick="addSpecRow()" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink hover:border-ink">＋ 行を追加</button>
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div class="md:col-span-4">
+                    <h2 data-editable="true" class="text-xl font-medium tracking-wide">標準仕様と店舗・会社概要</h2>
+                    <p data-editable="true" class="text-xs text-muted mt-3 leading-relaxed">試着モードでは、右側の表をお客様の店舗情報（営業時間・所在地など）に書き換え・行追加してご確認いただけます。</p>
+                </div>
+                <div class="md:col-span-8">
+                    <dl id="spec-dl" class="divide-y divide-line border-t border-b border-line text-sm">
+                        <!-- Spec rows rendered by JS -->
+                    </dl>
+                </div>
+            </div>
+        </section>
+
+        <!-- 04. CONTACT -->
+        <section id="contact" data-section-name="Contact（お問い合わせ）" class="sortable-section border-t border-line pt-12">
+            <div class="flex items-center justify-between gap-2 mb-6">
+                <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">04 / Order & Contact</span>
+                <div class="section-controls items-center gap-1 z-20">
+                    <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                    <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                    <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                    <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                </div>
+            </div>
+            <div class="bg-surface border border-line dyn-radius-box p-8 sm:p-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+                <div class="space-y-3 max-w-xl">
+                    <h2 data-editable="true" class="text-xl sm:text-2xl font-medium text-ink tracking-wide">制作のご相談・お見積り</h2>
+                    <p data-editable="true" class="text-sm text-muted leading-relaxed">画面上で編集したテキストや構成、カラー設定をそのままメール本文に反映して相談を送ることができます。</p>
+                </div>
+                <div class="shrink-0">
+                    <button type="button" onclick="sendRoleplayOrder()" class="btn-primary-accent px-8 py-4 text-xs tracking-[0.15em] uppercase dyn-radius-btn hover:opacity-85 transition-opacity">
+                        <span>この内容で相談メールを作成する →</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="sim-footer" class="max-w-5xl mx-auto px-6 py-12 border-t border-line flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 text-xs text-muted pb-28">
+        <div class="space-y-3 w-full sm:w-auto">
+            <div class="flex flex-wrap items-center gap-4">
+                <div id="footer-links-container" class="flex flex-wrap items-center gap-4">
+                    <!-- Footer links injected by JS (Instagram / X / Google Maps) -->
+                </div>
+                <button type="button" onclick="addFooterLink()" class="sim-only-item px-2.5 py-1 bg-surface border border-line dyn-radius-btn text-[10px] text-ink hover:border-ink">＋ 外部・SNSリンク追加</button>
+            </div>
+            <div id="footer-copyright" data-editable="true">&copy; 2026 THE STANDARD / re-standard. All rights reserved.</div>
+        </div>
+        <div id="footer-tagline" data-editable="true" class="tracking-widest uppercase shrink-0">Built for Longevity</div>
+    </footer>
+
+    <!-- MODAL 1: 詳細カードモーダル -->
+    <div id="detail-modal" onclick="if(event.target === this) closeAllModals()" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
+        <div id="detail-modal-box" class="bg-canvas border border-line dyn-radius-box max-w-xl w-full p-6 sm:p-10 shadow-xl space-y-6">
+            <div class="flex justify-between items-start border-b border-line pb-4 gap-4">
+                <div>
+                    <span id="modal-category" class="text-xs tracking-widest text-muted uppercase block"></span>
+                    <h3 id="modal-title" class="text-xl font-medium text-ink mt-1"></h3>
+                </div>
+                <button type="button" onclick="handleCloseBtnClick(event)" class="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface border border-line text-xs text-muted hover:text-ink hover:border-ink transition-all shrink-0">
+                    <span id="detail-close-label" data-modal-editable="true" onblur="syncCloseLabels(this)" class="tracking-wider font-medium">CLOSE</span>
+                    <span class="w-4 h-4 rounded-full bg-canvas border border-line flex items-center justify-center text-[10px] leading-none group-hover:bg-ink group-hover:text-canvas group-hover:border-ink transition-colors">✕</span>
+                </button>
+            </div>
+            <div class="aspect-[16/9] bg-surface border border-line dyn-radius-box flex items-center justify-center relative overflow-hidden img-watermark">
+                <img id="modal-preview-img" class="w-full h-full object-cover hidden select-none pointer-events-none" alt="Modal Preview">
+                <span id="modal-url-preview" data-modal-editable="true" onblur="saveModalEdits()" class="text-xs text-muted tracking-wider px-4 text-center"></span>
+            </div>
+            <div class="space-y-4 text-sm">
+                <p id="modal-desc" data-modal-editable="true" onblur="saveModalEdits()" class="text-ink leading-relaxed"></p>
+                <div class="pt-3 border-t border-line flex justify-between items-baseline gap-4 text-xs text-muted">
+                    <span data-modal-editable="true">Architecture / Spec:</span>
+                    <span id="modal-tech" data-modal-editable="true" onblur="saveModalEdits()" class="text-ink font-medium"></span>
+                </div>
+                <p id="modal-edit-hint" class="hidden text-[11px] text-muted">※ 試着モード中：説明文やURL、ボタン文言をクリックして直接打ち替えられます</p>
+            </div>
+            <div class="pt-2 flex justify-end gap-3">
+                <button type="button" onclick="handleCloseBtnClick(event)" class="px-5 py-2.5 bg-surface border border-line text-xs text-muted dyn-radius-btn hover:text-ink hover:border-ink transition-colors">
+                    <span id="detail-bottom-close-label" data-modal-editable="true" onblur="syncBottomCloseLabel(this)">閉じる</span>
+                </button>
+                <a id="modal-link" href="#" onclick="if(isSimMode) event.preventDefault()" target="_blank" rel="noopener noreferrer" class="btn-primary-accent px-6 py-2.5 text-xs tracking-wider uppercase dyn-radius-btn hover:opacity-85 transition-opacity">
+                    <span data-modal-editable="true">サイトを開く →</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: 写真拡大ライトボックス -->
+    <div id="lightbox-modal" onclick="closeAllModals()" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-sm p-4 sm:p-6 cursor-zoom-out">
+        <div onclick="event.stopPropagation()" class="relative w-full max-w-4xl bg-canvas border border-line dyn-radius-box overflow-hidden shadow-2xl cursor-default modal-enter">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-line bg-surface gap-4">
+                <div class="flex items-center gap-3 truncate">
+                    <span id="lightbox-title" class="text-xs font-medium tracking-wider text-ink truncate">Project Title</span>
+                    <span id="lightbox-desc" class="text-xs text-muted hidden sm:inline truncate"></span>
+                </div>
+                <button type="button" onclick="handleCloseBtnClick(event)" class="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-canvas border border-line text-xs text-muted hover:text-ink hover:border-ink transition-all shrink-0">
+                    <span id="lightbox-close-label" data-modal-editable="true" onblur="syncCloseLabels(this)" class="tracking-wider font-medium">CLOSE</span>
+                    <span class="w-4 h-4 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] leading-none group-hover:bg-ink group-hover:text-canvas group-hover:border-ink transition-colors">✕</span>
+                </button>
+            </div>
+            <div class="aspect-[16/10] w-full bg-surface flex items-center justify-center relative overflow-hidden img-watermark">
+                <img id="lightbox-img" class="w-full h-full object-contain hidden select-none pointer-events-none" alt="Enlarged">
+                <div id="lightbox-placeholder" class="text-xs tracking-[0.25em] text-muted uppercase px-4 text-center">Visual Slot Preview</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: パスコード認証 -->
+    <div id="passcode-modal" onclick="if(event.target === this) closePasscodeModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
+        <div class="bg-canvas border border-line dyn-radius-box max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-5 modal-enter">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] font-mono tracking-widest text-muted uppercase block">Admin Only</span>
+                    <h3 class="text-base font-medium text-ink mt-0.5">完成品（納品用）の書き出し</h3>
+                </div>
+                <button type="button" onclick="closePasscodeModal()" class="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] text-muted hover:text-ink">✕</button>
+            </div>
+            <p class="text-xs text-muted leading-relaxed">透かしやシミュレーターを除去し、外部通信不要の単一HTMLとして保存するにはパスコードを入力してください。</p>
+            <div class="space-y-2">
+                <input type="password" id="passcode-input" inputmode="numeric" placeholder="Passcode" onkeydown="if(event.key==='Enter') submitPasscode()" class="w-full px-3.5 py-2.5 bg-surface border border-line dyn-radius-box text-center font-mono text-base tracking-[0.35em] text-ink focus:outline-none focus:border-ink">
+                <p id="passcode-error" class="hidden text-[11px] text-red-600 text-center">パスコードが正しくありません</p>
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button type="button" onclick="closePasscodeModal()" class="px-4 py-2 bg-surface border border-line text-xs text-muted dyn-radius-btn hover:text-ink">キャンセル</button>
+                <button type="button" onclick="submitPasscode()" class="btn-primary-accent px-5 py-2 text-xs font-medium tracking-wider dyn-radius-btn hover:opacity-85">保存する →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: リセット確認 -->
+    <div id="reset-modal" onclick="if(event.target === this) closeResetModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
+        <div class="bg-canvas border border-line dyn-radius-box max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-6 modal-enter">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] font-mono tracking-widest text-muted uppercase block">Reset</span>
+                    <h3 class="text-base font-medium text-ink mt-0.5">初期状態へのリセット</h3>
+                </div>
+                <button type="button" onclick="closeResetModal()" class="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] text-muted hover:text-ink">✕</button>
+            </div>
+            <p class="text-xs text-muted leading-relaxed">編集内容を破棄し、初期状態に戻しますか？</p>
+            <div class="flex justify-end gap-2 pt-1">
+                <button type="button" onclick="closeResetModal()" class="px-4 py-2 bg-surface border border-line text-xs text-muted dyn-radius-btn hover:text-ink">キャンセル</button>
+                <button type="button" onclick="confirmReset()" class="btn-primary-accent px-5 py-2 text-xs font-medium tracking-wider dyn-radius-btn hover:opacity-85">リセット</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 5: 制作相談送信選択 -->
+    <div id="contact-modal" onclick="if(event.target === this) closeContactModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
+        <div class="bg-canvas border border-line dyn-radius-box max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-5 modal-enter">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="text-[10px] font-mono tracking-widest text-muted uppercase block">Contact</span>
+                    <h3 class="text-base font-medium text-ink mt-0.5">相談内容の送信</h3>
+                </div>
+                <button type="button" onclick="closeContactModal()" class="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] text-muted hover:text-ink">✕</button>
+            </div>
+            <p class="text-xs text-muted leading-relaxed">ご利用環境に合わせて送信方法をお選びください。</p>
+            <div class="space-y-2 pt-1">
+                <button type="button" onclick="triggerContactAction('mailto')" class="btn-primary-accent w-full px-4 py-3 text-xs font-medium tracking-wider dyn-radius-btn hover:opacity-85 flex items-center justify-between">
+                    <span>メールアプリで開く</span><span class="font-mono">→</span>
+                </button>
+                <button type="button" onclick="triggerContactAction('gmail')" class="w-full px-4 py-3 bg-surface border border-line text-ink text-xs font-medium tracking-wider dyn-radius-btn hover:border-ink flex items-center justify-between">
+                    <span>Gmail（ブラウザ）で開く</span><span class="font-mono text-muted">↗</span>
+                </button>
+                <button type="button" onclick="triggerContactAction('copy')" class="w-full px-4 py-3 bg-surface border border-line text-ink text-xs font-medium tracking-wider dyn-radius-btn hover:border-ink flex items-center justify-between">
+                    <span id="copy-order-btn-label">相談内容と宛先をコピー</span><span class="font-mono text-muted">⎘</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- シミュレーター・ドロワー -->
+    <div id="sim-drawer-wrapper" class="fixed bottom-0 left-0 w-full z-50 flex flex-col items-center pointer-events-none drawer-closed">
+        <button type="button" onclick="toggleDrawer()" class="pointer-events-auto h-[36px] px-5 bg-panel backdrop-blur-md border border-b-0 border-line rounded-t-md shadow-sm flex items-center gap-2.5 text-xs text-muted hover:text-ink transition-colors">
+            <span id="drawer-arrow" class="text-[10px] transition-transform duration-300">▲</span>
+            <span class="tracking-wider font-medium">試着シミュレーター PLUS</span>
+            <span id="drawer-badge" class="w-1.5 h-1.5 rounded-full bg-muted/40 transition-colors"></span>
+        </button>
+
+        <div class="pointer-events-auto w-full bg-panel backdrop-blur-md border-t border-line shadow-[0_-8px_30px_rgba(0,0,0,0.06)] px-4 sm:px-6 py-3.5">
+            <div class="max-w-5xl mx-auto flex flex-col gap-2.5">
+                <!-- 1段目：試着スイッチ・履歴・業種プリセット・セクション追加・保存 -->
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button id="sim-toggle-btn" onclick="toggleSimulator()" class="px-3.5 py-2 bg-canvas text-ink border border-line text-xs font-medium rounded-md shadow-sm hover:border-ink transition-colors">
+                            ✎ 試着モード：OFF
+                        </button>
+
+                        <div class="inline-flex items-center rounded-md border border-line bg-canvas overflow-hidden shadow-sm">
+                            <button type="button" id="sim-undo-btn" onclick="undoHistory()" disabled class="history-btn px-2.5 py-2 text-xs font-mono text-ink hover:bg-surface border-r border-line leading-none" title="元に戻す (Ctrl+Z)">↺</button>
+                            <button type="button" id="sim-redo-btn" onclick="redoHistory()" disabled class="history-btn px-2.5 py-2 text-xs font-mono text-ink hover:bg-surface border-r border-line leading-none" title="やり直す (Ctrl+Y)">↻</button>
+                            <button type="button" onclick="openResetModal()" class="history-btn px-2.5 py-2 text-[10px] font-mono tracking-widest uppercase text-muted hover:text-ink hover:bg-surface leading-none" title="初期状態に戻す">RESET</button>
+                        </div>
+
+                        <!-- 業種プリセット着せ替え -->
+                        <div class="relative">
+                            <button type="button" id="preset-menu-btn" onclick="togglePresetMenu(event)" class="px-3 py-2 bg-canvas text-ink border border-line text-xs rounded-md hover:border-ink flex items-center gap-1.5">
+                                <span>❖ 業種プリセット</span><span class="text-[9px] text-muted">▲</span>
+                            </button>
+                            <div id="preset-menu" onclick="event.stopPropagation()" class="hidden absolute bottom-full left-0 mb-2 w-56 max-w-[calc(100vw-24px)] bg-canvas border border-line rounded-md shadow-xl p-1.5 z-50 space-y-1 text-xs">
+                                <div class="px-2.5 py-1 text-[10px] tracking-wider text-muted uppercase border-b border-line/60">Industry Presets</div>
+                                <button type="button" onclick="applyPreset('standard'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>標準（Web・デザイン）</span><span class="text-[10px] text-muted">白磁</span></button>
+                                <button type="button" onclick="applyPreset('cafe'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>店舗（カフェ・サロン）</span><span class="text-[10px] text-muted">生成り</span></button>
+                                <button type="button" onclick="applyPreset('artisan'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>作家（建築・工芸・写真）</span><span class="text-[10px] text-muted">消炭</span></button>
+                                <button type="button" onclick="applyPreset('corporate'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>企業（コーポレート・不動産）</span><span class="text-[10px] text-muted">藍鉄</span></button>
+                            </div>
+                        </div>
+
+                        <!-- セクション追加メニュー -->
+                        <div class="relative">
+                            <button type="button" id="add-menu-btn" onclick="toggleAddMenu(event)" class="px-3 py-2 bg-canvas text-ink border border-line text-xs rounded-md hover:border-ink flex items-center gap-1.5">
+                                <span>＋ セクション追加</span><span class="text-[9px] text-muted">▲</span>
+                            </button>
+                            <div id="add-section-menu" onclick="event.stopPropagation()" class="hidden absolute bottom-full left-0 mb-2 w-64 max-w-[calc(100vw-24px)] bg-canvas border border-line rounded-md shadow-xl p-1.5 z-50 space-y-1 text-xs">
+                                <div class="px-2.5 py-1 text-[10px] tracking-wider text-muted uppercase border-b border-line/60">Add / Toggle Modules</div>
+                                <button type="button" id="mv-toggle-menu-btn" onclick="toggleMainVisual(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>00 / メインビジュアル枠</span><span id="mv-status-badge" class="px-1.5 py-0.5 text-[10px] rounded bg-surface border border-line text-muted">OFF</span></button>
+                                <button type="button" onclick="addStorySection(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>＋ STORY（写真＋物語・左右反転可）</span></button>
+                                <button type="button" onclick="addMenuSection(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>＋ MENU（料金・メニュー表）</span></button>
+                                <button type="button" onclick="addNewsSection(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>＋ NEWS（お知らせ・沿革リスト）</span></button>
+                                <button type="button" onclick="addFaqSection(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>＋ FAQ（よくある質問・開閉式）</span></button>
+                                <button type="button" onclick="addGallerySection(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>＋ GALLERY（追加ギャラリー枠）</span></button>
+                                <button type="button" onclick="addFreeTextSection(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>＋ TEXT（フリーテキスト枠）</span></button>
+                            </div>
+                        </div>
+
+                        <!-- 保存メニュー -->
+                        <div class="relative">
+                            <button type="button" id="save-menu-btn" onclick="toggleSaveMenu(event)" class="group px-3.5 py-2 bg-canvas text-ink border border-line text-xs font-medium rounded-md hover:bg-ink hover:text-canvas transition-all flex items-center gap-1.5">
+                                <span>↓ HTML / JSON保存</span><span class="text-[9px] text-muted group-hover:text-canvas">▲</span>
+                            </button>
+                            <div id="save-html-menu" onclick="event.stopPropagation()" class="hidden absolute bottom-full left-0 mb-2 w-60 max-w-[calc(100vw-24px)] bg-canvas border border-line rounded-md shadow-xl p-1.5 z-50 space-y-1 text-xs">
+                                <div class="px-2.5 py-1 text-[10px] tracking-wider text-muted uppercase border-b border-line/60">Export / Save</div>
+                                <button type="button" onclick="downloadCurrentHTML('preset'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>プリセット保存（HTML）</span><span class="px-1.5 py-0.5 text-[10px] rounded bg-surface border border-line text-muted">一時保存</span></button>
+                                <button type="button" onclick="requestCleanExport(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span class="font-medium text-ink">完成品を保存（納品用）</span><span class="px-1.5 py-0.5 text-[10px] rounded bg-ink text-canvas font-medium">納品</span></button>
+                                <div class="border-t border-line/60 my-1"></div>
+                                <button type="button" onclick="exportJsonState(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>セーブデータ出力 (JSON)</span><span class="font-mono text-[10px] text-muted">↓</span></button>
+                                <label class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between cursor-pointer"><span>セーブデータ読込 (JSON)</span><span class="font-mono text-[10px] text-muted">↑</span><input type="file" accept=".json" class="hidden" onchange="importJsonState(event)"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="toggleDrawer()" class="px-2 py-1 text-muted hover:text-ink text-xs ml-auto" title="バーを隠す">隠す ▼</button>
+                </div>
+
+                <!-- 2段目：紙色・差し色（和の伝統色）・書体・余白・角丸・ポップアップ -->
+                <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-line/60 text-xs">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="text-[11px] text-muted">紙色:</span>
+                        <button type="button" onclick="setTheme('default')" class="px-2 py-1 rounded bg-[#fafaf9] text-[#171717] border border-[#d6d6d3] text-[11px] hover:opacity-80">白磁</button>
+                        <button type="button" onclick="setTheme('warm')" class="px-2 py-1 rounded bg-[#f6f3ec] text-[#26231e] border border-[#d8d0c0] text-[11px] hover:opacity-80">生成り</button>
+                        <button type="button" onclick="setTheme('charcoal')" class="px-2 py-1 rounded bg-[#282725] text-[#f0eee9] border border-[#3d3b38] text-[11px] hover:opacity-80">消炭</button>
+                        <button type="button" onclick="setTheme('dark')" class="px-2 py-1 rounded bg-[#141413] text-[#f4f4f0] border border-[#3a3a38] text-[11px] hover:opacity-80">墨黒</button>
+
+                        <span class="text-line mx-0.5">|</span>
+                        <span class="text-[11px] text-muted mr-0.5">差し色:</span>
+                        <button type="button" onclick="setAccent('default')" data-accent-swatch="default" class="w-4 h-4 rounded-full bg-[#171717] border border-line transition-transform is-selected" title="標準（墨）"></button>
+                        <button type="button" onclick="setAccent('moss')" data-accent-swatch="moss" class="w-4 h-4 rounded-full bg-[#2d4b3e] border border-line transition-transform" title="千歳緑（深い森の緑）"></button>
+                        <button type="button" onclick="setAccent('indigo')" data-accent-swatch="indigo" class="w-4 h-4 rounded-full bg-[#2b3d54] border border-line transition-transform" title="藍鉄（深い藍）"></button>
+                        <button type="button" onclick="setAccent('suou')" data-accent-swatch="suou" class="w-4 h-4 rounded-full bg-[#6e2c30] border border-line transition-transform" title="蘇芳（落ち着いた深紅・臙脂）"></button>
+                        <button type="button" onclick="setAccent('ochre')" data-accent-swatch="ochre" class="w-4 h-4 rounded-full bg-[#78522b] border border-line transition-transform" title="琥珀・黄土（木と珈琲の茶褐）"></button>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button type="button" id="font-toggle-btn" onclick="toggleFontStyle()" class="px-2.5 py-1 rounded bg-canvas border border-line text-ink text-[11px] hover:border-ink">書体：ゴシック</button>
+
+                        <!-- 余白密度 -->
+                        <div class="inline-flex items-center bg-canvas border border-line rounded p-0.5 text-[11px]">
+                            <span class="text-muted px-1.5 text-[10px]">余白:</span>
+                            <button type="button" onclick="setDensity('compact')" data-density-btn="compact" class="px-1.5 py-0.5 rounded text-muted hover:text-ink">狭</button>
+                            <button type="button" onclick="setDensity('normal')" data-density-btn="normal" class="px-1.5 py-0.5 rounded bg-ink text-canvas font-medium">標準</button>
+                            <button type="button" onclick="setDensity('spacious')" data-density-btn="spacious" class="px-1.5 py-0.5 rounded text-muted hover:text-ink">広</button>
+                        </div>
+
+                        <!-- 角丸トーン（直角 0px / 標準 6px / やわらか 12px） -->
+                        <div class="inline-flex items-center bg-canvas border border-line rounded p-0.5 text-[11px]">
+                            <span class="text-muted px-1.5 text-[10px]">角:</span>
+                            <button type="button" onclick="setRadius('sharp')" data-radius-btn="sharp" class="px-1.5 py-0.5 rounded text-muted hover:text-ink">直角</button>
+                            <button type="button" onclick="setRadius('normal')" data-radius-btn="normal" class="px-1.5 py-0.5 rounded bg-ink text-canvas font-medium">標準</button>
+                            <button type="button" onclick="setRadius('soft')" data-radius-btn="soft" class="px-1.5 py-0.5 rounded text-muted hover:text-ink">やわらか</button>
+                        </div>
+
+                        <button type="button" id="popup-toggle-btn" onclick="cyclePopupMode()" class="px-2.5 py-1 rounded bg-ink text-canvas text-[11px] hover:opacity-90" title="実績クリック時の挙動切替">詳細カード</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INITIAL STATE -->
+    <script id="re-standard-state">
+        window.__INITIAL_STATE__ = {
+            currentTheme: 'default',
+            currentAccent: 'default',
+            isSerif: false,
+            popupMode: 'detail',
+            isMainVisualVisible: false,
+            mvRatio: '21/9',
+            closeBtnText: 'CLOSE',
+            bottomCloseBtnText: '閉じる',
+            worksCols: 2,
+            worksRatio: '16/10',
+            philCols: 3,
+            densityMode: 'normal',
+            radiusMode: 'normal',
+            slotCounter: 4,
+            customSectionCounter: 1,
+            footerLinks: [
+                { text: 'Instagram', url: 'https://instagram.com' },
+                { text: 'X (Twitter)', url: 'https://x.com' },
+                { text: 'Google Maps', url: 'https://maps.google.com' }
+            ],
+            philCards: [
+                { tag: '01 — CLARITY', title: '明快な構造', desc: '訪問者が目的の情報へ最短でたどり着けるよう、視線の流れと余白の比率を整理し、説明のいらない画面を設計します。' },
+                { tag: '02 — DURABILITY', title: '長期的な堅牢性', desc: '成熟した標準技術（HTML / CSS / JavaScript）を土台とし、経年劣化や保守負担を最小限に抑えます。' },
+                { tag: '03 — PROTOTYPING', title: '動く試作品からの対話', desc: '抽象的な言葉や書類だけで議論するのではなく、初期段階から実際にブラウザで触れるプロトタイプを提示します。' }
+            ],
+            specRows: [
+                { label: '屋号・名称', val: 'THE STANDARD（クリックして自社の名称に変更可能）' },
+                { label: '事業内容・コンセプト', val: 'Webデザイン設計 / 静的・BaaSハイブリッド構築' },
+                { label: '所在地・アクセス', val: '京都市（全国オンライン対応）' },
+                { label: '標準納期・維持費', val: 'プロトタイプ確認後 約1〜2週間 / 月額保守費 0円〜' }
+            ],
+            projectDetails: {
+                1: { desc: 'プロジェクトの目的、ターゲット、および設計上の工夫をここに記述します。不要な装飾を省き、情報の見やすさと表示速度を最優先に設計した標準的な静的サイトの構成例です。', tech: 'HTML5 / Tailwind CSS / JavaScript', url: 'https://example.com/project-01', title: 'Project Title 01', category: 'Category / Static Website', img: '' },
+                2: { desc: '外観はシンプルな静的構造を保ちながら、パスワード認証やデータベース連携などの必要な動的機能のみを外部BaaS（Supabase等）と接続したハイブリッド構成の事例です。', tech: 'HTML5 / JavaScript / Supabase', url: 'https://example.com/project-02', title: 'Project Title 02', category: 'Category / Web Application (BaaS)', img: '' },
+                3: { desc: '店舗やブランドの空気感を伝えるためのシングルページ構成。写真と余白、タイポグラフィのバランスを整え、スマートフォンからでも直感的に閲覧できるレイアウトです。', tech: 'HTML5 / CSS Grid / Responsive UI', url: 'https://example.com/project-03', title: 'Project Title 03', category: 'Category / Brand Concept', img: '' },
+                4: { desc: '複数の記事や作品を整理して見せるアーカイブ型のレイアウト。長期的な運用でも構造が崩れないモジュール設計を採用しています。', tech: 'HTML5 / Modular Grid', url: 'https://example.com/project-04', title: 'Project Title 04', category: 'Category / Editorial & Archive', img: '' }
+            }
+        };
+    </script>
+
+    <!-- MAIN ENGINE SCRIPT -->
+    <script>
+        const ADMIN_PASSCODE = '0328';
+        const CONTACT_EMAIL = 're.standard.tk@gmail.com';
+        const AUTOSAVE_KEY = 're_standard_plus_autosave_v3';
+
+        let isDrawerOpen = false;
+        let isSimMode = false;
+        let activeSlotIndex = null;
+        let activeLinkTarget = null;
+
+        const isProductionBuild = !document.getElementById('sim-drawer-wrapper');
+        let savedData = null;
+        if (!isProductionBuild) {
+            try {
+                const raw = localStorage.getItem(AUTOSAVE_KEY);
+                if (raw) savedData = JSON.parse(raw);
+            } catch (e) {
+                console.error("Local Storage read error:", e);
+            }
+        }
+        const initState = savedData || window.__INITIAL_STATE__ || {};
+
+        let currentTheme = initState.currentTheme || 'default';
+        let currentAccent = initState.currentAccent || 'default';
+        let isSerif = !!initState.isSerif;
+        let popupMode = initState.popupMode || 'detail';
+        let isMainVisualVisible = !!initState.isMainVisualVisible;
+        let mvRatio = initState.mvRatio || '21/9';
+        let closeBtnText = initState.closeBtnText || 'CLOSE';
+        let bottomCloseBtnText = initState.bottomCloseBtnText || '閉じる';
+        let worksCols = initState.worksCols || 2;
+        let worksRatio = initState.worksRatio || '16/10';
+        let philCols = initState.philCols || 3;
+        let densityMode = initState.densityMode || 'normal';
+        let radiusMode = initState.radiusMode || 'normal';
+        if (radiusMode === 'round') radiusMode = 'soft';
+        let slotCounter = initState.slotCounter || 4;
+        let customSectionCounter = initState.customSectionCounter || 1;
+
+        let footerLinks = JSON.parse(JSON.stringify(
+            (initState.footerLinks && initState.footerLinks.length >= 1)
+                ? initState.footerLinks
+                : (window.__INITIAL_STATE__?.footerLinks || [])
+        ));
+        let philCards = JSON.parse(JSON.stringify(initState.philCards || window.__INITIAL_STATE__?.philCards || []));
+        let specRows = JSON.parse(JSON.stringify(initState.specRows || window.__INITIAL_STATE__?.specRows || []));
+        let projectDetails = JSON.parse(JSON.stringify(initState.projectDetails || window.__INITIAL_STATE__?.projectDetails || {}));
+
+        // ==========================================================
+        // ★ DOM上のテキスト編集内容をデータ配列へ同期（再描画で消えないよう保護）
+        // ==========================================================
+        function syncDOMToDataModels() {
+            // Philosophy Cards
+            const philEls = document.querySelectorAll('#philosophy-grid [data-phil-card]');
+            if (philEls.length > 0) {
+                philCards = Array.from(philEls).map(el => ({
+                    tag: (el.querySelector('[data-phil-field="tag"]')?.innerText || '').trim(),
+                    title: (el.querySelector('[data-phil-field="title"]')?.innerText || '').trim(),
+                    desc: (el.querySelector('[data-phil-field="desc"]')?.innerText || '').trim()
+                }));
+            }
+            // Works Cards
+            document.querySelectorAll('#works-grid [data-work-card]').forEach(el => {
+                const k = el.getAttribute('data-work-card');
+                if (projectDetails[k]) {
+                    const tEl = document.getElementById('sim-work-title-' + k);
+                    const cEl = document.getElementById('sim-work-desc-' + k);
+                    const imgEl = document.getElementById('preview-img-' + k);
+                    if (tEl) projectDetails[k].title = tEl.innerText.trim();
+                    if (cEl) projectDetails[k].category = cEl.innerText.trim();
+                    if (imgEl && !imgEl.classList.contains('hidden')) projectDetails[k].img = imgEl.src;
+                }
+            });
+            // Spec Rows
+            const specEls = document.querySelectorAll('#spec-dl [data-spec-row]');
+            if (specEls.length > 0) {
+                specRows = Array.from(specEls).map(el => ({
+                    label: (el.querySelector('dt')?.innerText || '').trim(),
+                    val: (el.querySelector('dd[data-editable]')?.innerText || '').trim()
+                }));
+            }
+            // Footer Links
+            const fLinkEls = document.querySelectorAll('#footer-links-container a[data-footer-link]');
+            if (fLinkEls.length > 0) {
+                footerLinks = Array.from(fLinkEls).map(a => ({
+                    text: a.innerText.trim(),
+                    url: a.getAttribute('href') || '#'
+                }));
+            }
+        }
+
+        // ==========================================================
+        // ★ UNDO / REDO / SNAPSHOT ENGINE
+        // ==========================================================
+        const MAX_HISTORY = 30;
+        let historyStack = [];
+        let historyIndex = -1;
+        let isRestoring = false;
+        let typingTimer = null;
+
+        function createSnapshot() {
+            syncDOMToDataModels();
+            const mainEl = document.getElementById('sortable-container');
+            const brandEl = document.getElementById('sim-brand-name');
+            const navEl = document.getElementById('sim-header-nav');
+            return {
+                mainHTML: mainEl ? mainEl.innerHTML : '',
+                brandHTML: brandEl ? brandEl.innerHTML : '',
+                navHTML: navEl ? navEl.innerHTML : '',
+                footerCopyright: document.getElementById('footer-copyright')?.innerHTML || '',
+                footerTagline: document.getElementById('footer-tagline')?.innerHTML || '',
+                currentTheme, currentAccent, isSerif, popupMode, isMainVisualVisible, mvRatio,
+                closeBtnText, bottomCloseBtnText, worksCols, worksRatio, philCols, densityMode, radiusMode,
+                slotCounter, customSectionCounter,
+                footerLinks: JSON.parse(JSON.stringify(footerLinks)),
+                philCards: JSON.parse(JSON.stringify(philCards)),
+                specRows: JSON.parse(JSON.stringify(specRows)),
+                projectDetails: JSON.parse(JSON.stringify(projectDetails))
+            };
+        }
+
+        function isSameSnapshot(a, b) {
+            if (!a || !b) return false;
+            return (
+                a.mainHTML === b.mainHTML &&
+                a.brandHTML === b.brandHTML &&
+                a.navHTML === b.navHTML &&
+                a.footerCopyright === b.footerCopyright &&
+                a.footerTagline === b.footerTagline &&
+                a.currentTheme === b.currentTheme &&
+                a.currentAccent === b.currentAccent &&
+                a.isSerif === b.isSerif &&
+                a.popupMode === b.popupMode &&
+                a.isMainVisualVisible === b.isMainVisualVisible &&
+                a.mvRatio === b.mvRatio &&
+                a.worksCols === b.worksCols &&
+                a.worksRatio === b.worksRatio &&
+                a.philCols === b.philCols &&
+                a.densityMode === b.densityMode &&
+                a.radiusMode === b.radiusMode &&
+                JSON.stringify(a.footerLinks) === JSON.stringify(b.footerLinks) &&
+                JSON.stringify(a.projectDetails) === JSON.stringify(b.projectDetails)
+            );
+        }
+
+        function recordHistory() {
+            if (isRestoring || isProductionBuild) return;
+            const snap = createSnapshot();
+            if (historyIndex >= 0 && isSameSnapshot(historyStack[historyIndex], snap)) {
+                return;
+            }
+            historyStack = historyStack.slice(0, historyIndex + 1);
+            historyStack.push(snap);
+            if (historyStack.length > MAX_HISTORY) historyStack.shift();
+            else historyIndex++;
+            updateHistoryUI();
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snap)); } catch(e){}
+        }
+
+        function applySnapshot(snap) {
+            if (!snap) return;
+            isRestoring = true;
+
+            const mainEl = document.getElementById('sortable-container');
+            const brandEl = document.getElementById('sim-brand-name');
+            const navEl = document.getElementById('sim-header-nav');
+
+            if (mainEl && snap.mainHTML) mainEl.innerHTML = snap.mainHTML;
+            if (brandEl && snap.brandHTML) brandEl.innerHTML = snap.brandHTML;
+            if (navEl && snap.navHTML) navEl.innerHTML = snap.navHTML;
+            if (snap.footerCopyright && document.getElementById('footer-copyright')) {
+                document.getElementById('footer-copyright').innerHTML = snap.footerCopyright;
+            }
+            if (snap.footerTagline && document.getElementById('footer-tagline')) {
+                document.getElementById('footer-tagline').innerHTML = snap.footerTagline;
+            }
+
+            currentTheme = snap.currentTheme || 'default';
+            currentAccent = snap.currentAccent || 'default';
+            isSerif = !!snap.isSerif;
+            popupMode = snap.popupMode || 'detail';
+            isMainVisualVisible = !!snap.isMainVisualVisible;
+            mvRatio = snap.mvRatio || '21/9';
+            closeBtnText = snap.closeBtnText || 'CLOSE';
+            bottomCloseBtnText = snap.bottomCloseBtnText || '閉じる';
+            worksCols = snap.worksCols || 2;
+            worksRatio = snap.worksRatio || '16/10';
+            philCols = snap.philCols || 3;
+            densityMode = snap.densityMode || 'normal';
+            radiusMode = snap.radiusMode === 'round' ? 'soft' : (snap.radiusMode || 'normal');
+            slotCounter = snap.slotCounter || 4;
+            customSectionCounter = snap.customSectionCounter || 1;
+
+            footerLinks = JSON.parse(JSON.stringify(snap.footerLinks || window.__INITIAL_STATE__?.footerLinks || []));
+            philCards = JSON.parse(JSON.stringify(snap.philCards || window.__INITIAL_STATE__?.philCards || []));
+            specRows = JSON.parse(JSON.stringify(snap.specRows || window.__INITIAL_STATE__?.specRows || []));
+            projectDetails = JSON.parse(JSON.stringify(snap.projectDetails || window.__INITIAL_STATE__?.projectDetails || {}));
+
+            setTheme(currentTheme, false);
+            setAccent(currentAccent, false);
+            toggleFontStyle(isSerif, false);
+            setDensity(densityMode, false);
+            setRadius(radiusMode, false);
+            applyPopupModeUI();
+            applyCloseLabelsUI();
+            toggleMainVisual(isMainVisualVisible, false);
+            setMainVisualRatio(mvRatio, false);
+
+            // ※ mainHTML が無い古い形式のJSONを読んだ場合のみ、各セクションを初期配列から再描画する
+            if (!snap.mainHTML) {
+                renderPhilosophyGrid();
+                renderWorksGrid();
+                renderSpecTable();
+            } else {
+                // mainHTML 内にすでに各セクションの状態が復元されているため、ボタンのアクティブ表示のみ同期
+                syncSectionControlButtonsUI();
+            }
+            renderFooterLinks();
+            syncDocumentTitle();
+            refreshEditableState();
+
+            isRestoring = false;
+            updateHistoryUI();
+        }
+
+        function syncSectionControlButtonsUI() {
+            document.querySelectorAll('[data-phil-cols-btn]').forEach(b => {
+                const active = Number(b.getAttribute('data-phil-cols-btn')) === philCols;
+                b.classList.toggle('bg-ink', active); b.classList.toggle('text-canvas', active); b.classList.toggle('font-medium', active);
+            });
+            document.querySelectorAll('[data-works-cols-btn]').forEach(b => {
+                const active = Number(b.getAttribute('data-works-cols-btn')) === worksCols;
+                b.classList.toggle('bg-ink', active); b.classList.toggle('text-canvas', active); b.classList.toggle('font-medium', active);
+            });
+            document.querySelectorAll('[data-works-ratio-btn]').forEach(b => {
+                const active = b.getAttribute('data-works-ratio-btn') === worksRatio;
+                b.classList.toggle('bg-ink', active); b.classList.toggle('text-canvas', active); b.classList.toggle('font-medium', active);
+            });
+        }
+
+        function undoHistory() {
+            if (historyIndex <= 0) return;
+            clearTimeout(typingTimer);
+            historyIndex--;
+            applySnapshot(historyStack[historyIndex]);
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(historyStack[historyIndex])); } catch(e){}
+        }
+        function redoHistory() {
+            if (historyIndex >= historyStack.length - 1) return;
+            clearTimeout(typingTimer);
+            historyIndex++;
+            applySnapshot(historyStack[historyIndex]);
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(historyStack[historyIndex])); } catch(e){}
+        }
+        function updateHistoryUI() {
+            const u = document.getElementById('sim-undo-btn'), r = document.getElementById('sim-redo-btn');
+            if (u) u.disabled = (historyIndex <= 0);
+            if (r) r.disabled = (historyIndex >= historyStack.length - 1);
+        }
+
+        function openResetModal() {
+            closeAllMenus();
+            document.getElementById('reset-modal').classList.remove('hidden');
+            document.getElementById('reset-modal').classList.add('flex');
+        }
+        function closeResetModal() {
+            document.getElementById('reset-modal').classList.add('hidden');
+            document.getElementById('reset-modal').classList.remove('flex');
+        }
+        function confirmReset() {
+            closeResetModal();
+            try { localStorage.removeItem(AUTOSAVE_KEY); } catch(e){}
+            location.reload();
+        }
+
+        document.addEventListener('input', function(e) {
+            if (!isSimMode || isRestoring) return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (!target) return;
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                if (target.hasAttribute('data-modal-editable')) saveModalEdits(false);
+                syncDocumentTitle();
+                recordHistory();
+            }, 400);
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+                const k = e.key.toLowerCase();
+                if (k === 'z') { e.preventDefault(); e.shiftKey ? redoHistory() : undoHistory(); }
+                else if (k === 'y') { e.preventDefault(); redoHistory(); }
+            }
+        });
+
+        function syncDocumentTitle() {
+            const b = document.getElementById('sim-brand-name');
+            if (b) { const t = b.innerText.trim(); if (t) document.title = `${t} — Web Design & Archive`; }
+        }
+
+        // ==========================================================
+        // ★ テキスト試着：初回1クリックで全選択・再クリックでカーソル移動・一括消去
+        // ==========================================================
+        let activeEditableEl = null;
+
+        function selectAllElementContents(el) {
+            if (!el) return;
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            const sel = window.getSelection();
+            if (sel) {
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+
+        document.addEventListener('pointerdown', function(e) {
+            if (!isSimMode) return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (!target) {
+                activeEditableEl = null;
+                return;
+            }
+            if (activeEditableEl !== target) {
+                activeEditableEl = target;
+                target.dataset.justActivated = 'true';
+            } else {
+                delete target.dataset.justActivated;
+            }
+        }, true);
+
+        document.addEventListener('click', function(e) {
+            if (!isSimMode) return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (target && target.dataset.justActivated === 'true') {
+                delete target.dataset.justActivated;
+                requestAnimationFrame(() => {
+                    if (document.activeElement === target) {
+                        selectAllElementContents(target);
+                    }
+                });
+            }
+        }, true);
+
+        document.addEventListener('focusin', function(e) {
+            if (!isSimMode) return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (target && activeEditableEl !== target) {
+                activeEditableEl = target;
+                requestAnimationFrame(() => {
+                    selectAllElementContents(target);
+                });
+            }
+        });
+
+        document.addEventListener('focusout', function(e) {
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (target && activeEditableEl === target) {
+                delete target.dataset.justActivated;
+                activeEditableEl = null;
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (!isSimMode) return;
+            if (e.key !== 'Backspace' && e.key !== 'Delete') return;
+            const target = e.target.closest('[data-editable="true"], [data-modal-editable="true"]');
+            if (!target) return;
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+
+            const selectedStr = sel.toString().replace(/\s+/g, '');
+            const totalStr = (target.innerText || target.textContent || '').replace(/\s+/g, '');
+            if (totalStr.length > 0 && selectedStr === totalStr) {
+                e.preventDefault();
+                target.innerHTML = '';
+                clearTimeout(typingTimer);
+                if (target.hasAttribute('data-modal-editable')) saveModalEdits(false);
+                syncDocumentTitle();
+                recordHistory();
+            }
+        });
+
+        document.addEventListener('paste', function(e) {
+            if (!isSimMode) return;
+            const target = e.target.closest('[contenteditable="true"]');
+            if (!target) return;
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
+                document.execCommand('insertText', false, text);
+            } else {
+                const selection = window.getSelection();
+                if (!selection.rangeCount) return;
+                selection.deleteFromDocument();
+                selection.getRangeAt(0).insertNode(document.createTextNode(text));
+                selection.collapseToEnd();
+            }
+            recordHistory();
+        });
+
+        // ==========================================================
+        // ★ DRAWER & MENUS
+        // ==========================================================
+        function toggleDrawer(force = null) {
+            const w = document.getElementById('sim-drawer-wrapper'), a = document.getElementById('drawer-arrow');
+            if (!w || !a) return;
+            isDrawerOpen = force !== null ? force : !isDrawerOpen;
+            if (isDrawerOpen) { w.classList.remove('drawer-closed'); w.classList.add('drawer-open'); a.textContent = '▼'; }
+            else { w.classList.remove('drawer-open'); w.classList.add('drawer-closed'); a.textContent = '▲'; closeAllMenus(); }
+        }
+
+        function toggleAddMenu(e) { e.stopPropagation(); toggleMenu('add-section-menu'); }
+        function toggleSaveMenu(e) { e.stopPropagation(); toggleMenu('save-html-menu'); }
+        function togglePresetMenu(e) { e.stopPropagation(); toggleMenu('preset-menu'); }
+
+        function toggleMenu(menuId) {
+            ['add-section-menu', 'save-html-menu', 'preset-menu'].forEach(id => {
+                const m = document.getElementById(id);
+                if (m) m.classList.toggle('hidden', id !== menuId ? true : !m.classList.contains('hidden'));
+            });
+        }
+        function closeAllMenus() {
+            ['add-section-menu', 'save-html-menu', 'preset-menu'].forEach(id => {
+                const m = document.getElementById(id); if (m) m.classList.add('hidden');
+            });
+        }
+        document.addEventListener('click', function() {
+            closeAllMenus();
+            closeLinkEditor();
+        });
+
+        function openAndActivateSimulator() {
+            toggleDrawer(true);
+            if (!isSimMode) toggleSimulator(true);
+        }
+
+        function toggleSimulator(force = null) {
+            isSimMode = force !== null ? force : !isSimMode;
+            const b = document.body, btn = document.getElementById('sim-toggle-btn'), bg = document.getElementById('drawer-badge'), wm = document.getElementById('global-watermark');
+            if (isSimMode) {
+                b.classList.add('sim-active'); b.classList.remove('guard-active');
+                if (btn) { btn.textContent = '● 試着モード：ON（文字・画像・並び替え可）'; btn.classList.add('bg-ink', 'text-canvas'); btn.classList.remove('bg-canvas', 'text-ink'); }
+                if (bg) bg.classList.replace('bg-muted/40', 'bg-emerald-500');
+                if (wm) wm.classList.remove('hidden');
+            } else {
+                b.classList.remove('sim-active'); b.classList.add('guard-active');
+                if (btn) { btn.textContent = '✎ 試着モード：OFF'; btn.classList.remove('bg-ink', 'text-canvas'); btn.classList.add('bg-canvas', 'text-ink'); }
+                if (bg) bg.classList.replace('bg-emerald-500', 'bg-muted/40');
+                if (wm) wm.classList.add('hidden');
+                closeLinkEditor();
+            }
+            refreshEditableState();
+        }
+
+        function refreshEditableState() {
+            const editables = document.querySelectorAll('[data-editable="true"], [data-modal-editable="true"]');
+            const uploadBtns = document.querySelectorAll('.sim-upload-btn');
+            const hint = document.getElementById('modal-edit-hint');
+            if (isSimMode) {
+                editables.forEach(el => { el.setAttribute('contenteditable', 'true'); el.setAttribute('spellcheck', 'false'); });
+                uploadBtns.forEach(btn => btn.classList.remove('hidden'));
+                if (hint) hint.classList.remove('hidden');
+            } else {
+                editables.forEach(el => el.removeAttribute('contenteditable'));
+                uploadBtns.forEach(btn => btn.classList.add('hidden'));
+                if (hint) hint.classList.add('hidden');
+            }
+        }
+
+        // ==========================================================
+        // ★ 紙色・差し色（ボタン色連動）・書体・余白・角丸
+        // ==========================================================
+        function setTheme(t, record = true) {
+            currentTheme = t;
+            if (t === 'default') document.documentElement.removeAttribute('data-theme');
+            else document.documentElement.setAttribute('data-theme', t);
+            if (record) recordHistory();
+        }
+
+        function setAccent(acc, record = true) {
+            currentAccent = acc;
+            if (acc === 'default') document.documentElement.removeAttribute('data-accent');
+            else document.documentElement.setAttribute('data-accent', acc);
+
+            document.querySelectorAll('[data-accent-swatch]').forEach(sw => {
+                sw.classList.toggle('is-selected', sw.getAttribute('data-accent-swatch') === acc);
+            });
+            if (record) recordHistory();
+        }
+
+        function toggleFontStyle(force = null, record = true) {
+            isSerif = force !== null ? force : !isSerif;
+            document.body.classList.toggle('font-serif-mode', isSerif);
+            const btn = document.getElementById('font-toggle-btn');
+            if (btn) btn.textContent = isSerif ? '書体：明朝体' : '書体：ゴシック';
+            if (record) recordHistory();
+        }
+
+        function setDensity(mode, record = true) {
+            densityMode = mode;
+            document.documentElement.setAttribute('data-density', mode);
+            document.querySelectorAll('[data-density-btn]').forEach(b => {
+                const active = b.getAttribute('data-density-btn') === mode;
+                b.classList.toggle('bg-ink', active);
+                b.classList.toggle('text-canvas', active);
+                b.classList.toggle('font-medium', active);
+                b.classList.toggle('text-muted', !active);
+            });
+            if (record) recordHistory();
+        }
+
+        function setRadius(mode, record = true) {
+            radiusMode = mode === 'round' ? 'soft' : mode;
+            document.documentElement.setAttribute('data-radius', radiusMode);
+            document.querySelectorAll('[data-radius-btn]').forEach(b => {
+                const active = b.getAttribute('data-radius-btn') === radiusMode;
+                b.classList.toggle('bg-ink', active);
+                b.classList.toggle('text-canvas', active);
+                b.classList.toggle('font-medium', active);
+                b.classList.toggle('text-muted', !active);
+            });
+            if (record) recordHistory();
+        }
+
+        // ==========================================================
+        // ★ HEADER NAV & LINK EDITOR POPOVER
+        // ==========================================================
+        function addHeaderNavItem() {
+            if (!isSimMode) toggleSimulator(true);
+            const nav = document.getElementById('sim-header-nav');
+            const a = document.createElement('a');
+            a.href = '#contact';
+            a.setAttribute('onclick', 'if(isSimMode) event.preventDefault()');
+            a.setAttribute('data-editable', 'true');
+            a.className = 'hover:text-ink transition-colors whitespace-nowrap';
+            a.textContent = 'New Menu';
+            nav.appendChild(a);
+            refreshEditableState();
+            recordHistory();
+        }
+
+        function syncHeaderNavWithSections() {
+            const nav = document.getElementById('sim-header-nav');
+            const secs = Array.from(document.querySelectorAll('#sortable-container .sortable-section:not(.hidden)'))
+                .filter(s => s.id && s.id !== 'hero' && s.id !== 'main-visual');
+            if (secs.length === 0) return;
+            nav.innerHTML = secs.map((s, idx) => {
+                const h = s.querySelector('h2');
+                const label = h ? h.innerText.trim().slice(0, 14) : s.id.toUpperCase();
+                const isLast = idx === secs.length - 1;
+                return `<a href="#${s.id}" onclick="if(isSimMode) event.preventDefault()" data-editable="true" class="${isLast ? 'text-ink font-medium underline underline-offset-4' : 'hover:text-ink'} transition-colors whitespace-nowrap">${label}</a>`;
+            }).join('');
+            refreshEditableState();
+            recordHistory();
+            showExportToast('✓ ヘッダーメニューを現在のセクション構成と同期しました');
+        }
+
+        function openLinkEditor(e, targetEl) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            if (!targetEl) return;
+            activeLinkTarget = targetEl;
+            const pop = document.getElementById('link-editor-popover'), input = document.getElementById('link-url-input'), chk = document.getElementById('link-blank-check');
+            input.value = targetEl.getAttribute('href') || '#';
+            chk.checked = targetEl.getAttribute('target') === '_blank';
+            const rect = targetEl.getBoundingClientRect();
+            pop.style.top = `${Math.max(12, Math.min(window.innerHeight - 160, rect.bottom + 8))}px`;
+            pop.style.left = `${Math.max(12, Math.min(window.innerWidth - 300, rect.left))}px`;
+            pop.classList.remove('hidden');
+            setTimeout(() => input.focus(), 30);
+        }
+        function closeLinkEditor() {
+            const pop = document.getElementById('link-editor-popover');
+            if (pop) pop.classList.add('hidden');
+            activeLinkTarget = null;
+        }
+        function applyLinkChanges() {
+            if (!activeLinkTarget) return;
+            const url = document.getElementById('link-url-input').value.trim() || '#';
+            const blank = document.getElementById('link-blank-check').checked;
+            activeLinkTarget.setAttribute('href', url);
+            if (blank) {
+                activeLinkTarget.setAttribute('target', '_blank');
+                activeLinkTarget.setAttribute('rel', 'noopener noreferrer');
+            } else {
+                activeLinkTarget.removeAttribute('target');
+                activeLinkTarget.removeAttribute('rel');
+            }
+            syncDOMToDataModels();
+            closeLinkEditor();
+            recordHistory();
+            showExportToast(`✓ リンク先を「${url}」に設定しました`);
+        }
+
+        // ==========================================================
+        // ★ MAIN VISUAL & PHILOSOPHY & WORKS & SPEC & FOOTER
+        // ==========================================================
+        function toggleMainVisual(state = null, record = true) {
+            isMainVisualVisible = state !== null ? state : !isMainVisualVisible;
+            const sec = document.getElementById('main-visual'), badge = document.getElementById('mv-status-badge');
+            if (sec) {
+                sec.classList.toggle('hidden', !isMainVisualVisible);
+                if (isMainVisualVisible && state === null) {
+                    if (!isSimMode) toggleSimulator(true);
+                    sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+            if (badge) {
+                badge.textContent = isMainVisualVisible ? 'ON' : 'OFF';
+                badge.className = isMainVisualVisible ? 'px-1.5 py-0.5 text-[10px] rounded bg-ink text-canvas font-medium' : 'px-1.5 py-0.5 text-[10px] rounded bg-surface border border-line text-muted';
+            }
+            refreshEditableState();
+            if (record) recordHistory();
+        }
+
+        function setMainVisualRatio(ratio, record = true) {
+            mvRatio = ratio;
+            const c = document.getElementById('mv-container');
+            if (c) {
+                c.classList.remove('aspect-[21/9]', 'aspect-[16/9]', 'aspect-[4/3]');
+                c.classList.add(`aspect-[${ratio}]`);
+            }
+            document.querySelectorAll('[data-mv-ratio-btn]').forEach(b => {
+                const active = b.getAttribute('data-mv-ratio-btn') === ratio;
+                b.classList.toggle('bg-ink', active); b.classList.toggle('text-canvas', active); b.classList.toggle('font-medium', active);
+            });
+            if (record) recordHistory();
+        }
+
+        function setPhilosophyCols(cols, record = true) {
+            syncDOMToDataModels();
+            philCols = cols;
+            const g = document.getElementById('philosophy-grid');
+            if (g) g.className = `grid grid-cols-1 md:grid-cols-${cols} border-t border-b border-line divide-y md:divide-y-0 md:divide-x divide-line`;
+            document.querySelectorAll('[data-phil-cols-btn]').forEach(b => {
+                const active = Number(b.getAttribute('data-phil-cols-btn')) === cols;
+                b.classList.toggle('bg-ink', active); b.classList.toggle('text-canvas', active); b.classList.toggle('font-medium', active);
+            });
+            if (record) recordHistory();
+        }
+
+        function addPhilosophyCard() {
+            syncDOMToDataModels();
+            const nextIdx = philCards.length + 1;
+            const num = String(nextIdx).padStart(2, '0');
+            philCards.push({ tag: `${num} — FEATURE`, title: '新しい原則・特徴', desc: 'ここに特徴やこだわり、サービスの強みなどを記述します。' });
+            renderPhilosophyGrid();
+            recordHistory();
+        }
+        function removePhilCard(idx) {
+            syncDOMToDataModels();
+            if (philCards.length <= 1) { alert('これ以上削除できません'); return; }
+            philCards.splice(idx, 1);
+            renderPhilosophyGrid();
+            recordHistory();
+        }
+        function movePhilCard(idx, dir) {
+            syncDOMToDataModels();
+            const next = idx + dir;
+            if (next < 0 || next >= philCards.length) return;
+            const temp = philCards[idx]; philCards[idx] = philCards[next]; philCards[next] = temp;
+            renderPhilosophyGrid();
+            recordHistory();
+        }
+        function renderPhilosophyGrid() {
+            const g = document.getElementById('philosophy-grid');
+            if (!g) return;
+            g.className = `grid grid-cols-1 md:grid-cols-${philCols} border-t border-b border-line divide-y md:divide-y-0 md:divide-x divide-line`;
+            g.innerHTML = philCards.map((c, i) => `
+                <div data-phil-card="${i}" class="py-8 md:px-6 space-y-4 relative">
+                    <div class="sim-only-item absolute top-2 right-2 items-center gap-1 bg-surface border border-line rounded p-1 z-10">
+                        <button type="button" onclick="movePhilCard(${i}, -1)" class="px-1 text-[10px] text-muted hover:text-ink" title="左へ">←</button>
+                        <button type="button" onclick="movePhilCard(${i}, 1)" class="px-1 text-[10px] text-muted hover:text-ink" title="右へ">→</button>
+                        <button type="button" onclick="removePhilCard(${i})" class="px-1 text-[10px] text-red-600" title="削除">×</button>
+                    </div>
+                    <span data-phil-field="tag" data-editable="true" class="text-xs text-muted tracking-widest block">${c.tag}</span>
+                    <h3 data-phil-field="title" data-editable="true" class="text-base font-medium text-ink tracking-wide">${c.title}</h3>
+                    <p data-phil-field="desc" data-editable="true" class="text-sm text-muted leading-relaxed">${c.desc}</p>
+                </div>
+            `).join('');
+            syncSectionControlButtonsUI();
+            refreshEditableState();
+        }
+
+        function setWorksCols(cols, record = true) {
+            syncDOMToDataModels();
+            worksCols = cols;
+            renderWorksGrid();
+            if (record) recordHistory();
+        }
+        function setWorksRatio(ratio, record = true) {
+            syncDOMToDataModels();
+            worksRatio = ratio;
+            renderWorksGrid();
+            if (record) recordHistory();
+        }
+        function addWorkCard() {
+            syncDOMToDataModels();
+            slotCounter++;
+            const idx = slotCounter;
+            const num = String(idx).padStart(2, '0');
+            projectDetails[idx] = {
+                desc: `プロジェクト${num}の詳細説明テキストです。試着モードで自由に書き換えられます。`,
+                tech: 'HTML5 / CSS Grid',
+                url: `https://example.com/project-${num}`,
+                title: `Project Title ${num}`,
+                category: 'Category / Archive',
+                img: ''
+            };
+            renderWorksGrid();
+            recordHistory();
+        }
+        function removeWorkCard(idx) {
+            syncDOMToDataModels();
+            const keys = Object.keys(projectDetails);
+            if (keys.length <= 1) { alert('これ以上削除できません'); return; }
+            delete projectDetails[idx];
+            renderWorksGrid();
+            recordHistory();
+        }
+        function renderWorksGrid() {
+            const grid = document.getElementById('works-grid');
+            if (!grid) return;
+            const colsClass = worksCols === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2';
+            grid.className = `grid grid-cols-1 ${colsClass} gap-x-8 gap-y-12`;
+
+            const keys = Object.keys(projectDetails);
+            grid.innerHTML = keys.map(k => {
+                const d = projectDetails[k];
+                const num = String(k).padStart(2, '0');
+                const hasImg = !!d.img;
+                return `
+                <article data-work-card="${k}" class="group space-y-4 relative">
+                    <div class="sim-only-item absolute top-2 right-2 z-30 bg-surface/95 border border-line rounded px-2 py-0.5 shadow-sm">
+                        <button type="button" onclick="removeWorkCard(${k})" class="text-[10px] text-muted hover:text-red-600">× 枠削除</button>
+                    </div>
+                    <div onclick="handleThumbnailClick(${k})" class="work-image-slot aspect-[${worksRatio}] bg-surface border border-line dyn-radius-box overflow-hidden flex items-center justify-center relative img-watermark">
+                        <img id="preview-img-${k}" src="${hasImg ? d.img : ''}" class="w-full h-full object-cover ${hasImg ? '' : 'hidden'} select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Preview ${num}">
+                        <span id="placeholder-txt-${k}" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase ${hasImg ? 'hidden' : ''} group-hover:scale-105 transition-transform duration-300">${num} / Visual Placeholder</span>
+                        <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 dyn-radius-btn cursor-pointer hover:border-ink shadow-sm">
+                            <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, ${k})">
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-baseline pt-1 gap-2">
+                        <div>
+                            <h3 id="sim-work-title-${k}" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${k})" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">${d.title}</h3>
+                            <p id="sim-work-desc-${k}" data-editable="true" class="text-xs text-muted mt-1">${d.category}</p>
+                        </div>
+                        <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${k})" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                    </div>
+                </article>`;
+            }).join('');
+            syncSectionControlButtonsUI();
+            refreshEditableState();
+        }
+
+        function addSpecRow() {
+            syncDOMToDataModels();
+            specRows.push({ label: '追加項目（営業時間・定休日など）', val: 'クリックして内容を記述できます' });
+            renderSpecTable();
+            recordHistory();
+        }
+        function removeSpecRow(idx) {
+            syncDOMToDataModels();
+            if (specRows.length <= 1) { alert('これ以上削除できません'); return; }
+            specRows.splice(idx, 1);
+            renderSpecTable();
+            recordHistory();
+        }
+        function moveSpecRow(idx, dir) {
+            syncDOMToDataModels();
+            const next = idx + dir;
+            if (next < 0 || next >= specRows.length) return;
+            const t = specRows[idx]; specRows[idx] = specRows[next]; specRows[next] = t;
+            renderSpecTable();
+            recordHistory();
+        }
+        function renderSpecTable() {
+            const dl = document.getElementById('spec-dl');
+            if (!dl) return;
+            dl.innerHTML = specRows.map((r, i) => `
+                <div data-spec-row="${i}" class="py-5 grid grid-cols-1 sm:grid-cols-12 gap-2 items-baseline">
+                    <dt data-editable="true" class="sm:col-span-4 text-muted">${r.label}</dt>
+                    <dd data-editable="true" class="sm:col-span-7 text-ink">${r.val}</dd>
+                    <dd class="sm:col-span-1 sim-only-item items-center justify-end gap-1.5">
+                        <button type="button" onclick="moveSpecRow(${i}, -1)" class="text-xs text-muted hover:text-ink" title="上へ">↑</button>
+                        <button type="button" onclick="moveSpecRow(${i}, 1)" class="text-xs text-muted hover:text-ink" title="下へ">↓</button>
+                        <button type="button" onclick="removeSpecRow(${i})" class="text-xs text-red-600" title="行を削除">×</button>
+                    </dd>
+                </div>
+            `).join('');
+            refreshEditableState();
+        }
+
+        function addFooterLink() {
+            syncDOMToDataModels();
+            footerLinks.push({ text: 'New Link', url: 'https://example.com' });
+            renderFooterLinks();
+            recordHistory();
+        }
+        function removeFooterLink(i) {
+            syncDOMToDataModels();
+            footerLinks.splice(i, 1);
+            renderFooterLinks();
+            recordHistory();
+        }
+        function renderFooterLinks() {
+            const c = document.getElementById('footer-links-container');
+            if (!c) return;
+            c.innerHTML = footerLinks.map((l, i) => `
+                <span class="inline-flex items-center gap-1">
+                    <a id="footer-link-${i}" data-footer-link="${i}" href="${l.url}" onclick="if(isSimMode) event.preventDefault()" target="_blank" rel="noopener noreferrer" data-editable="true" class="text-ink hover:underline underline-offset-4">${l.text}</a>
+                    <button type="button" onclick="openLinkEditor(event, document.getElementById('footer-link-${i}'))" class="sim-only-item text-[10px] text-muted hover:text-ink px-0.5" title="URL設定">🔗</button>
+                    <button type="button" onclick="removeFooterLink(${i})" class="sim-only-item text-[10px] text-red-600 px-0.5" title="削除">×</button>
+                </span>
+            `).join('');
+            refreshEditableState();
+        }
+
+        // ==========================================================
+        // ★ 追加セクション（STORY / MENU / NEWS / FAQ / GALLERY / TEXT）
+        // ==========================================================
+        function insertNewSection(sec) {
+            if (!isSimMode) toggleSimulator(true);
+            const contactSec = document.getElementById('contact');
+            const container = document.getElementById('sortable-container');
+            if (contactSec && contactSec.parentNode === container) container.insertBefore(sec, contactSec);
+            else container.appendChild(sec);
+            refreshEditableState();
+            sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            recordHistory();
+        }
+
+        function flipStoryLayout(btnEl) {
+            const grid = btnEl.closest('section').querySelector('[data-story-grid]');
+            if (!grid) return;
+            const visualCol = grid.querySelector('[data-story-visual]');
+            const textCol = grid.querySelector('[data-story-text]');
+            if (visualCol && textCol) {
+                visualCol.classList.toggle('md:order-2');
+                textCol.classList.toggle('md:order-1');
+                recordHistory();
+            }
+        }
+
+        function addStorySection() {
+            const num = String(customSectionCounter++).padStart(2, '0');
+            const slotId = 'story_' + Date.now();
+            const sec = document.createElement('section');
+            sec.id = 'story-' + num;
+            sec.setAttribute('data-section-name', `Story #${num}（写真＋物語コンセプト枠）`);
+            sec.className = 'sortable-section space-y-10 border-t border-line pt-12';
+            sec.innerHTML = `
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">STORY / Concept &amp; Background #${num}</span>
+                    <div class="section-controls items-center gap-1.5 z-20">
+                        <button type="button" onclick="flipStoryLayout(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink hover:border-ink">⇄ 左右反転</button>
+                        <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                        <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                        <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                        <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                    </div>
+                </div>
+                <div data-story-grid class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                    <div data-story-visual class="aspect-[16/10] bg-surface border border-line dyn-radius-box flex items-center justify-center relative img-watermark overflow-hidden">
+                        <img id="preview-img-${slotId}" class="w-full h-full object-cover hidden select-none pointer-events-none" alt="Story Visual">
+                        <span id="placeholder-txt-${slotId}" data-editable="true" class="text-xs tracking-widest text-muted uppercase">Story Photograph Slot</span>
+                        <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 dyn-radius-btn cursor-pointer hover:border-ink shadow-sm">
+                            <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, '${slotId}')">
+                        </label>
+                    </div>
+                    <div data-story-text class="space-y-5">
+                        <h2 data-editable="true" class="text-2xl font-medium tracking-wide text-ink">手仕事と空間の物語</h2>
+                        <p data-editable="true" class="text-sm text-muted leading-loose">ここにブランドの背景や店主の想い、素材のこだわりなどをゆったりと記述します。写真と文章を横並びで見せることで、ギャラリーとは異なる深いストーリーを伝えることができます。</p>
+                    </div>
+                </div>`;
+            insertNewSection(sec);
+        }
+
+        function addMenuItemToSection(btnEl) {
+            const list = btnEl.closest('section').querySelector('[data-menu-list]');
+            if (!list) return;
+            const item = document.createElement('div');
+            item.className = 'flex justify-between items-baseline border-b border-line pb-3 gap-4';
+            item.innerHTML = `
+                <div>
+                    <div data-editable="true" class="text-sm font-medium text-ink">新規メニュー・サービス項目</div>
+                    <div data-editable="true" class="text-xs text-muted mt-0.5">補足説明やセット内容など</div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <span data-editable="true" class="text-sm font-mono text-ink">¥ 5,500</span>
+                    <button type="button" onclick="this.closest('.border-b').remove(); recordHistory();" class="sim-only-item text-xs text-red-600">×</button>
+                </div>`;
+            list.appendChild(item);
+            refreshEditableState();
+            recordHistory();
+        }
+
+        function addMenuSection() {
+            const num = String(customSectionCounter++).padStart(2, '0');
+            const sec = document.createElement('section');
+            sec.id = 'menu-' + num;
+            sec.setAttribute('data-section-name', `Menu #${num}（料金・メニュー表）`);
+            sec.className = 'sortable-section space-y-10 border-t border-line pt-12';
+            sec.innerHTML = `
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">MENU / Price &amp; Service List #${num}</span>
+                    <div class="section-controls items-center gap-1.5 z-20">
+                        <button type="button" onclick="addMenuItemToSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink hover:border-ink">＋ メニュー追加</button>
+                        <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                        <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                        <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                        <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                    </div>
+                </div>
+                <div><h2 data-editable="true" class="text-xl font-medium tracking-wide">メニュー・料金表</h2></div>
+                <div data-menu-list class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 border-t border-line pt-8">
+                    <div class="flex justify-between items-baseline border-b border-line pb-3 gap-4">
+                        <div>
+                            <div data-editable="true" class="text-sm font-medium text-ink">スタンダードプラン / 基本コース</div>
+                            <div data-editable="true" class="text-xs text-muted mt-0.5">カウンセリング＋基本設計一式（税込）</div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span data-editable="true" class="text-sm font-mono text-ink">¥ 12,000</span>
+                            <button type="button" onclick="this.closest('.border-b').remove(); recordHistory();" class="sim-only-item text-xs text-red-600">×</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-baseline border-b border-line pb-3 gap-4">
+                        <div>
+                            <div data-editable="true" class="text-sm font-medium text-ink">プレミアムプラン / 特選コース</div>
+                            <div data-editable="true" class="text-xs text-muted mt-0.5">オーダーメイド対応・アフターサポート付（税込）</div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span data-editable="true" class="text-sm font-mono text-ink">¥ 24,000</span>
+                            <button type="button" onclick="this.closest('.border-b').remove(); recordHistory();" class="sim-only-item text-xs text-red-600">×</button>
+                        </div>
+                    </div>
+                </div>`;
+            insertNewSection(sec);
+        }
+
+        function addNewsItemToSection(btnEl) {
+            const list = btnEl.closest('section').querySelector('[data-news-list]');
+            if (!list) return;
+            const row = document.createElement('div');
+            row.className = 'py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2';
+            row.innerHTML = `
+                <div class="flex flex-wrap items-center gap-3">
+                    <span data-editable="true" class="font-mono text-xs text-muted">2026.05.01</span>
+                    <span data-editable="true" class="badge-accent-line px-2 py-0.5 text-[10px] border dyn-radius-box">NEWS</span>
+                    <span data-editable="true" class="text-ink">新しいお知らせや沿革のテキストをここに入力します。</span>
+                </div>
+                <button type="button" onclick="this.closest('.py-4').remove(); recordHistory();" class="sim-only-item text-xs text-red-600 self-end sm:self-center">×</button>`;
+            list.appendChild(row);
+            refreshEditableState();
+            recordHistory();
+        }
+
+        function addNewsSection() {
+            const num = String(customSectionCounter++).padStart(2, '0');
+            const sec = document.createElement('section');
+            sec.id = 'news-' + num;
+            sec.setAttribute('data-section-name', `News #${num}（お知らせ・沿革リスト）`);
+            sec.className = 'sortable-section space-y-10 border-t border-line pt-12';
+            sec.innerHTML = `
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">NEWS / Information &amp; Timeline #${num}</span>
+                    <div class="section-controls items-center gap-1.5 z-20">
+                        <button type="button" onclick="addNewsItemToSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink hover:border-ink">＋ 記事・沿革を追加</button>
+                        <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                        <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                        <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                        <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                    </div>
+                </div>
+                <div><h2 data-editable="true" class="text-xl font-medium tracking-wide">お知らせ・ブランドの歩み</h2></div>
+                <div data-news-list class="divide-y divide-line border-t border-b border-line text-sm">
+                    <div class="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span data-editable="true" class="font-mono text-xs text-muted">2026.04.01</span>
+                            <span data-editable="true" class="badge-accent-line px-2 py-0.5 text-[10px] border dyn-radius-box">INFO</span>
+                            <span data-editable="true" class="text-ink">公式Webサイトを公開しました。</span>
+                        </div>
+                        <button type="button" onclick="this.closest('.py-4').remove(); recordHistory();" class="sim-only-item text-xs text-red-600 self-end sm:self-center">×</button>
+                    </div>
+                </div>`;
+            insertNewSection(sec);
+        }
+
+        function addFaqItemToSection(btnEl) {
+            const list = btnEl.closest('section').querySelector('[data-faq-list]');
+            if (!list) return;
+            const d = document.createElement('details');
+            d.open = true;
+            d.className = 'bg-surface border border-line dyn-radius-box p-5 group';
+            d.innerHTML = `
+                <summary class="font-medium text-sm cursor-pointer list-none flex justify-between items-center gap-4">
+                    <span data-editable="true" class="text-ink">Q. 新しい質問タイトルをここに入力します</span>
+                    <span class="flex items-center gap-2 shrink-0">
+                        <button type="button" onclick="event.preventDefault(); this.closest('details').remove(); recordHistory();" class="sim-only-item text-xs text-red-600">×削除</button>
+                        <span class="text-muted group-open:rotate-45 transition-transform">＋</span>
+                    </span>
+                </summary>
+                <p data-editable="true" class="text-xs text-muted mt-3 leading-relaxed border-t border-line pt-3">A. 質問に対する回答テキストをここに記述します。</p>`;
+            list.appendChild(d);
+            refreshEditableState();
+            recordHistory();
+        }
+
+        function addFaqSection() {
+            const num = String(customSectionCounter++).padStart(2, '0');
+            const sec = document.createElement('section');
+            sec.id = 'faq-' + num;
+            sec.setAttribute('data-section-name', `FAQ #${num}（よくある質問）`);
+            sec.className = 'sortable-section space-y-10 border-t border-line pt-12';
+            sec.innerHTML = `
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">FAQ / Frequently Asked Questions #${num}</span>
+                    <div class="section-controls items-center gap-1.5 z-20">
+                        <button type="button" onclick="addFaqItemToSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink hover:border-ink">＋ 質問を追加</button>
+                        <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                        <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                        <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                        <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                    </div>
+                </div>
+                <div><h2 data-editable="true" class="text-xl font-medium tracking-wide">よくあるご質問</h2></div>
+                <div data-faq-list class="space-y-4">
+                    <details open class="bg-surface border border-line dyn-radius-box p-5 group">
+                        <summary class="font-medium text-sm cursor-pointer list-none flex justify-between items-center gap-4">
+                            <span data-editable="true" class="text-ink">Q. 事前の予約や相談は必要ですか？</span>
+                            <span class="flex items-center gap-2 shrink-0">
+                                <button type="button" onclick="event.preventDefault(); this.closest('details').remove(); recordHistory();" class="sim-only-item text-xs text-red-600">×削除</button>
+                                <span class="text-muted group-open:rotate-45 transition-transform">＋</span>
+                            </span>
+                        </summary>
+                        <p data-editable="true" class="text-xs text-muted mt-3 leading-relaxed border-t border-line pt-3">A. ご予約優先にて承っております。下部のお問い合わせボタンまたはお電話よりお気軽にご連絡ください。</p>
+                    </details>
+                </div>`;
+            insertNewSection(sec);
+        }
+
+        function addGallerySection() {
+            const num = String(customSectionCounter++).padStart(2, '0');
+            const slotA = ++slotCounter;
+            const slotB = ++slotCounter;
+            projectDetails[slotA] = { desc: '追加ギャラリー枠の説明文です。', tech: 'Custom Item 0' + slotA, url: 'https://example.com/item-0' + slotA, title: `Sub Gallery Title 01`, category: 'Category / Custom Item', img: '' };
+            projectDetails[slotB] = { desc: '追加ギャラリー枠の説明文です。', tech: 'Custom Item 0' + slotB, url: 'https://example.com/item-0' + slotB, title: `Sub Gallery Title 02`, category: 'Category / Custom Item', img: '' };
+            const sec = document.createElement('section');
+            sec.id = 'gallery-' + num;
+            sec.setAttribute('data-section-name', `Gallery #${num}（追加ギャラリー枠）`);
+            sec.className = 'sortable-section space-y-10 border-t border-line pt-12';
+            sec.innerHTML = `
+                <div class="flex items-center justify-between gap-2">
+                    <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">EXTRA / Additional Gallery #${num}</span>
+                    <div class="section-controls items-center gap-1 z-20">
+                        <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                        <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                        <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                        <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                    </div>
+                </div>
+                <div><h2 data-editable="true" class="text-xl font-medium tracking-wide">追加ギャラリー・空間紹介</h2></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-12">
+                    <article class="group space-y-4">
+                        <div onclick="handleThumbnailClick(${slotA})" class="work-image-slot aspect-[16/10] bg-surface border border-line dyn-radius-box overflow-hidden flex items-center justify-center relative img-watermark">
+                            <img id="preview-img-${slotA}" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Gallery A">
+                            <span id="placeholder-txt-${slotA}" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase">Gallery Slot A</span>
+                            <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 dyn-radius-btn cursor-pointer hover:border-ink shadow-sm">
+                                <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, ${slotA})">
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-baseline pt-1 gap-2">
+                            <div>
+                                <h3 id="sim-work-title-${slotA}" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${slotA})" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Sub Gallery Title 01</h3>
+                                <p id="sim-work-desc-${slotA}" data-editable="true" class="text-xs text-muted mt-1">空間や商品の補足キャプションを記述できます</p>
+                            </div>
+                            <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${slotA})" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                        </div>
+                    </article>
+                    <article class="group space-y-4">
+                        <div onclick="handleThumbnailClick(${slotB})" class="work-image-slot aspect-[16/10] bg-surface border border-line dyn-radius-box overflow-hidden flex items-center justify-center relative img-watermark">
+                            <img id="preview-img-${slotB}" class="w-full h-full object-cover hidden select-none pointer-events-none transition-transform duration-300 group-hover:scale-[1.03]" alt="Gallery B">
+                            <span id="placeholder-txt-${slotB}" data-editable="true" onclick="if(isSimMode) event.stopPropagation()" class="text-xs tracking-widest text-muted uppercase">Gallery Slot B</span>
+                            <label onclick="event.stopPropagation()" class="sim-upload-btn hidden absolute bottom-3 right-3 z-20 bg-surface/95 text-ink border border-line text-xs px-3.5 py-2 dyn-radius-btn cursor-pointer hover:border-ink shadow-sm">
+                                <span>＋ 写真を当てはめる</span><input type="file" accept="image/*" class="hidden" onchange="loadUserImage(event, ${slotB})">
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-baseline pt-1 gap-2">
+                            <div>
+                                <h3 id="sim-work-title-${slotB}" data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${slotB})" class="text-base font-medium text-ink group-hover:underline underline-offset-4 cursor-pointer">Sub Gallery Title 02</h3>
+                                <p id="sim-work-desc-${slotB}" data-editable="true" class="text-xs text-muted mt-1">空間や商品の補足キャプションを記述できます</p>
+                            </div>
+                            <span data-editable="true" onclick="if(!isSimMode) handleThumbnailClick(${slotB})" class="text-xs text-muted cursor-pointer hover:text-ink shrink-0">詳細を見る →</span>
+                        </div>
+                    </article>
+                </div>`;
+            insertNewSection(sec);
+        }
+
+        function addFreeTextSection() {
+            const num = String(customSectionCounter++).padStart(2, '0');
+            const sec = document.createElement('section');
+            sec.id = 'custom-text-' + num;
+            sec.setAttribute('data-section-name', `Free Text #${num}（フリーテキスト枠）`);
+            sec.className = 'sortable-section space-y-8 border-t border-line pt-12';
+            sec.innerHTML = `
+                <div class="flex items-center justify-between gap-2">
+                    <span data-editable="true" class="text-xs tracking-[0.2em] text-muted uppercase block">EXTRA / Free Text Block #${num}</span>
+                    <div class="section-controls items-center gap-1 z-20">
+                        <button type="button" onclick="moveSectionStep(this, -1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↑</button>
+                        <button type="button" onclick="moveSectionStep(this, 1)" class="px-2 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-ink">↓</button>
+                        <div class="drag-handle flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-ink shadow-sm"><span class="text-sm leading-none">⠿</span><span class="font-mono uppercase">Move</span></div>
+                        <button type="button" onclick="deleteSection(this)" class="px-2.5 py-1.5 bg-surface border border-line dyn-radius-btn text-[11px] text-muted hover:text-red-600">× 削除</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <div class="md:col-span-4"><h2 data-editable="true" class="text-xl font-medium tracking-wide">新しい見出しタイトル</h2></div>
+                    <div data-editable="true" class="md:col-span-8 text-sm sm:text-base text-muted leading-loose">ここは新しく追加されたフリーテキストセクションです。クリックして自由に書き換えられます。</div>
+                </div>`;
+            insertNewSection(sec);
+        }
+
+        // ==========================================================
+        // ★ 業種プリセット着せ替え
+        // ==========================================================
+        function applyPreset(type) {
+            const copyEl = document.getElementById('sim-main-copy');
+            const subEl = document.getElementById('sim-sub-label');
+            const leadEl = document.getElementById('sim-lead-text');
+
+            if (type === 'cafe') {
+                setTheme('warm', false); setAccent('ochre', false); toggleFontStyle(true, false); setRadius('soft', false); setDensity('spacious', false);
+                document.getElementById('sim-brand-name').innerText = 'ROASTERY & CAFE';
+                if (subEl) subEl.innerText = 'Specialty Coffee & Baked Goods';
+                if (copyEl) copyEl.innerHTML = '一杯の珈琲と、<br>静かに流れる午後の余白。';
+                if (leadEl) leadEl.innerText = '季節ごとに厳選した自家焙煎の珈琲豆と、素材の風味を活かした焼き菓子をご用意しています。日常の喧騒から離れ、穏やかな時間をお過ごしください。';
+            } else if (type === 'artisan') {
+                setTheme('charcoal', false); setAccent('default', false); toggleFontStyle(true, false); setRadius('sharp', false); setDensity('spacious', false);
+                document.getElementById('sim-brand-name').innerText = 'ATELIER KRAFTS';
+                if (subEl) subEl.innerText = 'Architectural Design & Woodwork';
+                if (copyEl) copyEl.innerHTML = '素材の記憶を宿し、<br>歳月とともに深まる造形。';
+                if (leadEl) leadEl.innerText = '無垢の木と鉄、自然素材が持つ本来の質感を活かした空間設計と家具製作。10年後、20年後にいっそう美しく佇むものづくりを追求しています。';
+            } else if (type === 'corporate') {
+                setTheme('default', false); setAccent('indigo', false); toggleFontStyle(false, false); setRadius('normal', false); setDensity('normal', false);
+                document.getElementById('sim-brand-name').innerText = 'CRASARC PARTNERS';
+                if (subEl) subEl.innerText = 'Real Estate & Urban Consulting';
+                if (copyEl) copyEl.innerHTML = '確かな視点と誠実な設計で、<br>資産と暮らしの未来を支える。';
+                if (leadEl) leadEl.innerText = '京都・大阪エリアを中心に、不動産の有効活用から建築企画、長期的な資産管理まで、一気通貫のパートナーシップでお客様の課題に応えます。';
+            } else {
+                setTheme('default', false); setAccent('default', false); toggleFontStyle(false, false); setRadius('normal', false); setDensity('normal', false);
+                document.getElementById('sim-brand-name').innerText = 'THE STANDARD';
+                if (subEl) subEl.innerText = 'Web Design & Digital Architecture';
+                if (copyEl) copyEl.innerHTML = 'かわらず、ずっと。<br>使い続けられる標準をつくる。';
+                if (leadEl) leadEl.innerText = '流行の装飾や過剰なシステムに頼らず、情報の整理と確かな基礎技術だけで構築されたWebサイト。誰にとっても迷いなく使えて、10年後も破綻しない「用の美」を設計の基準としています。';
+            }
+            syncDocumentTitle();
+            recordHistory();
+            showExportToast('✓ 業種プリセットを適用しました（↺ボタンで元に戻せます）');
+        }
+
+        // ==========================================================
+        // ★ DRAG & DROP ENGINE
+        // ==========================================================
+        const container = document.getElementById('sortable-container');
+        const pointerGhost = document.getElementById('pointer-drag-ghost');
+        const pointerGhostLabel = document.getElementById('pointer-ghost-label');
+        let draggedSection = null, isPointerDragging = false, activePointerId = null, currentPointerY = 0, autoScrollSpeed = 0, autoScrollFrame = null;
+
+        function moveSectionStep(btnEl, direction) {
+            if (!isSimMode) return;
+            const currentSec = btnEl.closest('.sortable-section');
+            if (!currentSec) return;
+            const visibleSections = Array.from(container.querySelectorAll('.sortable-section:not(.hidden)'));
+            const idx = visibleSections.indexOf(currentSec);
+            const targetIdx = idx + direction;
+            if (targetIdx < 0 || targetIdx >= visibleSections.length) return;
+            const targetSec = visibleSections[targetIdx];
+            if (direction < 0) container.insertBefore(currentSec, targetSec);
+            else container.insertBefore(currentSec, targetSec.nextSibling);
+            currentSec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            recordHistory();
+        }
+
+        container.addEventListener('touchstart', function(e) { if (isSimMode && e.target.closest('.drag-handle')) e.preventDefault(); }, { passive: false });
+        window.addEventListener('touchmove', function(e) { if (isPointerDragging) e.preventDefault(); }, { passive: false });
+
+        container.addEventListener('pointerdown', function(e) {
+            if (!isSimMode) return;
+            const handle = e.target.closest('.drag-handle');
+            if (!handle || (e.pointerType === 'mouse' && e.button !== 0)) return;
+            if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+            draggedSection = handle.closest('.sortable-section');
+            if (!draggedSection) return;
+
+            isPointerDragging = true; activePointerId = e.pointerId; currentPointerY = e.clientY;
+            document.documentElement.classList.add('is-dragging-scroll');
+            try { handle.setPointerCapture(e.pointerId); } catch(err){}
+            const heading = draggedSection.querySelector('h1, h2');
+            pointerGhostLabel.textContent = heading ? heading.innerText.replace(/\n+/g, ' ').trim() : (draggedSection.getAttribute('data-section-name') || 'Section');
+            pointerGhost.style.display = 'flex'; updateGhostPosition(e.clientY);
+            draggedSection.classList.add('is-pointer-placeholder');
+            if (!autoScrollFrame) autoScrollFrame = requestAnimationFrame(continuousDragLoop);
+            e.preventDefault();
+        });
+
+        window.addEventListener('pointermove', function(e) {
+            if (!isPointerDragging || !draggedSection || (activePointerId !== null && e.pointerId !== activePointerId)) return;
+            currentPointerY = e.clientY; updateGhostPosition(e.clientY); computeScrollVelocity(e.clientY); evaluateSectionSwap(e.clientY);
+            e.preventDefault();
+        }, { passive: false });
+
+        function finishPointerDrag() {
+            if (!isPointerDragging) return;
+            isPointerDragging = false; activePointerId = null; autoScrollSpeed = 0;
+            if (autoScrollFrame) { cancelAnimationFrame(autoScrollFrame); autoScrollFrame = null; }
+            document.documentElement.classList.remove('is-dragging-scroll');
+            if (pointerGhost) pointerGhost.style.display = 'none';
+            if (draggedSection) { draggedSection.classList.remove('is-pointer-placeholder'); draggedSection = null; }
+            recordHistory();
+        }
+        window.addEventListener('pointerup', finishPointerDrag);
+        window.addEventListener('pointercancel', finishPointerDrag);
+
+        function updateGhostPosition(clientY) { if (pointerGhost) pointerGhost.style.top = Math.max(12, Math.min(window.innerHeight - 62, clientY - 25)) + 'px'; }
+        function computeScrollVelocity(clientY) {
+            const topZone = 150, bottomZone = 180;
+            if (clientY < topZone) autoScrollSpeed = -16;
+            else if (window.innerHeight - clientY < bottomZone) autoScrollSpeed = 16;
+            else autoScrollSpeed = 0;
+        }
+        function continuousDragLoop() {
+            if (!isPointerDragging) { autoScrollFrame = null; return; }
+            if (autoScrollSpeed !== 0) { window.scrollBy(0, autoScrollSpeed); evaluateSectionSwap(currentPointerY); }
+            autoScrollFrame = requestAnimationFrame(continuousDragLoop);
+        }
+        function evaluateSectionSwap(clientY) {
+            if (!draggedSection) return;
+            const visible = Array.from(container.querySelectorAll('.sortable-section:not(.hidden)'));
+            for (const sec of visible) {
+                if (sec === draggedSection) continue;
+                const rect = sec.getBoundingClientRect();
+                if (clientY >= rect.top && clientY <= rect.bottom) {
+                    const midpoint = rect.top + rect.height / 2;
+                    const cIdx = visible.indexOf(draggedSection), tIdx = visible.indexOf(sec);
+                    if (cIdx < tIdx && clientY > midpoint) container.insertBefore(draggedSection, sec.nextSibling);
+                    else if (cIdx > tIdx && clientY < midpoint) container.insertBefore(draggedSection, sec);
+                    break;
+                }
+            }
+        }
+
+        function deleteSection(btnEl) {
+            const sec = btnEl.closest('.sortable-section');
+            if (container.querySelectorAll('.sortable-section:not(.hidden)').length <= 1) { alert('これ以上セクションを削除できません'); return; }
+            sec.remove(); recordHistory();
+        }
+
+        // ==========================================================
+        // ★ MODALS, IMAGES & EXPORT
+        // ==========================================================
+        function handleCloseBtnClick(e) {
+            if (isSimMode && e.target.hasAttribute('data-modal-editable')) { e.stopPropagation(); return; }
+            closeAllModals();
+        }
+        function syncCloseLabels(el) {
+            closeBtnText = el.innerText.trim() || 'CLOSE';
+            const dLabel = document.getElementById('detail-close-label'), lLabel = document.getElementById('lightbox-close-label');
+            if (dLabel) dLabel.textContent = closeBtnText;
+            if (lLabel) lLabel.textContent = closeBtnText;
+        }
+        function syncBottomCloseLabel(el) {
+            bottomCloseBtnText = el.innerText.trim() || '閉じる';
+            el.textContent = bottomCloseBtnText;
+        }
+        function applyCloseLabelsUI() {
+            const dLabel = document.getElementById('detail-close-label'), lLabel = document.getElementById('lightbox-close-label'), bLabel = document.getElementById('detail-bottom-close-label');
+            if (dLabel) dLabel.textContent = closeBtnText;
+            if (lLabel) lLabel.textContent = closeBtnText;
+            if (bLabel) bLabel.textContent = bottomCloseBtnText;
+        }
+
+        function applyPopupModeUI() {
+            const btn = document.getElementById('popup-toggle-btn');
+            document.body.setAttribute('data-popup-mode', popupMode);
+            if (!btn) return;
+            if (popupMode === 'detail') btn.textContent = '詳細カード';
+            else if (popupMode === 'zoom') btn.textContent = '写真拡大';
+            else btn.textContent = 'ポップアップOFF';
+        }
+        function cyclePopupMode() {
+            if (popupMode === 'detail') popupMode = 'zoom';
+            else if (popupMode === 'zoom') popupMode = 'off';
+            else popupMode = 'detail';
+            applyPopupModeUI(); recordHistory();
+        }
+
+        function handleThumbnailClick(slotIndex) {
+            if (popupMode === 'off') return;
+            syncDOMToDataModels();
+            activeSlotIndex = slotIndex;
+            const d = projectDetails[slotIndex] || {};
+            const imgEl = document.getElementById('preview-img-' + slotIndex);
+            const titleEl = document.getElementById('sim-work-title-' + slotIndex);
+            const catEl = document.getElementById('sim-work-desc-' + slotIndex);
+            const currentTitle = titleEl ? titleEl.innerText.trim() : (d.title || `Project Title 0${slotIndex}`);
+            const currentCat = catEl ? catEl.innerText.trim() : (d.category || `Category`);
+            const hasImg = imgEl && imgEl.src && !imgEl.classList.contains('hidden');
+
+            if (popupMode === 'detail') {
+                document.getElementById('modal-title').textContent = currentTitle;
+                document.getElementById('modal-category').textContent = currentCat;
+                document.getElementById('modal-desc').textContent = d.desc || '';
+                document.getElementById('modal-tech').textContent = d.tech || '';
+                document.getElementById('modal-url-preview').textContent = d.url || '';
+                document.getElementById('modal-link').href = d.url || '#';
+                if (hasImg) {
+                    document.getElementById('modal-preview-img').src = imgEl.src;
+                    document.getElementById('modal-preview-img').classList.remove('hidden');
+                    document.getElementById('modal-url-preview').classList.add('hidden');
+                } else {
+                    document.getElementById('modal-preview-img').classList.add('hidden');
+                    document.getElementById('modal-url-preview').classList.remove('hidden');
+                }
+                document.getElementById('detail-modal').classList.remove('hidden');
+                document.getElementById('detail-modal').classList.add('flex');
+            } else if (popupMode === 'zoom') {
+                document.getElementById('lightbox-title').textContent = currentTitle;
+                document.getElementById('lightbox-desc').textContent = currentCat;
+                if (hasImg) {
+                    document.getElementById('lightbox-img').src = imgEl.src;
+                    document.getElementById('lightbox-img').classList.remove('hidden');
+                    document.getElementById('lightbox-placeholder').classList.add('hidden');
+                } else {
+                    document.getElementById('lightbox-img').classList.add('hidden');
+                    document.getElementById('lightbox-placeholder').classList.remove('hidden');
+                }
+                document.getElementById('lightbox-modal').classList.remove('hidden');
+                document.getElementById('lightbox-modal').classList.add('flex');
+            }
+        }
+
+        function saveModalEdits(record = true) {
+            const dLabel = document.getElementById('detail-close-label');
+            if (dLabel && dLabel.innerText.trim()) syncCloseLabels(dLabel);
+            const bLabel = document.getElementById('detail-bottom-close-label');
+            if (bLabel && bLabel.innerText.trim()) syncBottomCloseLabel(bLabel);
+
+            if (activeSlotIndex && projectDetails[activeSlotIndex]) {
+                projectDetails[activeSlotIndex].desc = document.getElementById('modal-desc').innerText.trim();
+                projectDetails[activeSlotIndex].tech = document.getElementById('modal-tech').innerText.trim();
+                const u = document.getElementById('modal-url-preview').innerText.trim();
+                if (u) {
+                    projectDetails[activeSlotIndex].url = u;
+                    document.getElementById('modal-link').href = u;
+                }
+            }
+            if (record) recordHistory();
+        }
+
+        function closeAllModals() {
+            saveModalEdits(true);
+            ['detail-modal', 'lightbox-modal', 'passcode-modal', 'reset-modal', 'contact-modal'].forEach(id => {
+                const m = document.getElementById(id);
+                if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+            });
+            activeSlotIndex = null;
+        }
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeAllModals(); });
+
+        function loadUserImage(event, slotIndex) {
+            const f = event.target.files[0]; if (!f) return;
+            const r = new FileReader();
+            r.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const max = slotIndex === 'mv' ? 1600 : 1280;
+                    let w = img.width, h = img.height;
+                    if (w > max || h > max) { if (w > h) { h = Math.round(h * (max/w)); w = max; } else { w = Math.round(w * (max/h)); h = max; } }
+                    const canvas = document.createElement('canvas'); canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    const outputType = (f.type === 'image/png' || f.type === 'image/svg+xml') ? f.type : 'image/jpeg';
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const dataUrl = outputType === 'image/jpeg' ? canvas.toDataURL('image/jpeg', 0.84) : canvas.toDataURL(outputType);
+                    const imgEl = document.getElementById('preview-img-' + slotIndex);
+                    const txtEl = document.getElementById('placeholder-txt-' + slotIndex);
+                    if (imgEl) { imgEl.src = dataUrl; imgEl.classList.remove('hidden'); }
+                    if (txtEl) txtEl.classList.add('hidden');
+                    if (projectDetails[slotIndex]) projectDetails[slotIndex].img = dataUrl;
+                    recordHistory();
+                };
+                img.src = e.target.result;
+            };
+            r.readAsDataURL(f);
+        }
+
+        function exportJsonState() {
+            const snap = createSnapshot();
+            const brandName = (document.getElementById('sim-brand-name').innerText.trim() || 're_standard_plus').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 30);
+            const blob = new Blob([JSON.stringify(snap, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `${brandName}_session.json`;
+            a.click(); URL.revokeObjectURL(url);
+            showExportToast('✓ セーブデータ (JSON) を書き出しました');
+        }
+
+        function importJsonState(event) {
+            const f = event.target.files[0]; if (!f) return;
+            const r = new FileReader();
+            r.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    applySnapshot(data);
+                    recordHistory();
+                    showExportToast('✓ セーブデータを正常に読み込みました');
+                } catch(err) {
+                    alert('JSONファイルの読み込みに失敗しました。');
+                }
+            };
+            r.readAsText(f);
+        }
+
+        function requestCleanExport() {
+            const m = document.getElementById('passcode-modal'), input = document.getElementById('passcode-input'), err = document.getElementById('passcode-error');
+            input.value = ''; err.classList.add('hidden');
+            m.classList.remove('hidden'); m.classList.add('flex'); setTimeout(() => input.focus(), 50);
+        }
+        function closePasscodeModal() { document.getElementById('passcode-modal').classList.add('hidden'); document.getElementById('passcode-modal').classList.remove('flex'); }
+        function submitPasscode() {
+            const input = document.getElementById('passcode-input'), err = document.getElementById('passcode-error');
+            if (input.value.trim() === ADMIN_PASSCODE) { closePasscodeModal(); downloadCurrentHTML('clean'); }
+            else { err.classList.remove('hidden'); input.value = ''; input.focus(); }
+        }
+
+        let toastTimer = null;
+        function showExportToast(msg) {
+            const t = document.getElementById('export-toast'), txt = document.getElementById('export-toast-text');
+            if (!t || !txt) return;
+            txt.textContent = msg; t.classList.remove('hidden'); t.classList.add('flex');
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { t.classList.add('hidden'); t.classList.remove('flex'); }, 4000);
+        }
+
+        async function downloadCurrentHTML(type = 'preset') {
+            saveModalEdits(false); syncDOMToDataModels(); syncDocumentTitle();
+            const wasSim = isSimMode, wasDrawer = isDrawerOpen;
+            closeAllModals(); closeAllMenus(); closeLinkEditor();
+            if (wasSim) toggleSimulator(false); if (wasDrawer) toggleDrawer(false);
+            const liveToast = document.getElementById('export-toast');
+            if (liveToast) { liveToast.classList.add('hidden'); liveToast.classList.remove('flex'); }
+
+            const snapData = createSnapshot();
+            const clone = document.documentElement.cloneNode(true);
+
+            if (type === 'clean') {
+                ['#sim-drawer-wrapper', '#global-watermark', '#pointer-drag-ghost', '#export-toast', '#sim-launch-cta-btn', '#passcode-modal', '#reset-modal', '#link-editor-popover', '#modal-edit-hint'].forEach(s => clone.querySelectorAll(s).forEach(el => el.remove()));
+                clone.querySelectorAll('button[onclick*="openAndActivateSimulator"]').forEach(el => el.remove());
+                clone.querySelectorAll('.section-controls, .sim-upload-btn, .sim-only-item').forEach(el => el.remove());
+                clone.querySelectorAll('.img-watermark').forEach(el => el.classList.remove('img-watermark'));
+                clone.querySelectorAll('[data-editable], [data-modal-editable], [contenteditable]').forEach(el => {
+                    el.removeAttribute('data-editable'); el.removeAttribute('data-modal-editable'); el.removeAttribute('contenteditable'); el.removeAttribute('spellcheck');
+                });
+                clone.querySelectorAll('#tailwind-cdn-script, #tailwind-config-script').forEach(el => el.remove());
+                clone.querySelectorAll('head style').forEach(st => { if (st.textContent && st.textContent.includes('tailwindcss')) st.remove(); });
+                // 納品用（clean）ではHTML自体に完成DOMが定着しているため、不要なmainHTML文字列を削って軽量化
+                delete snapData.mainHTML;
+                delete snapData.brandHTML;
+                delete snapData.navHTML;
+            } else {
+                clone.querySelectorAll('head style').forEach(st => { if ((st.textContent && st.textContent.includes('tailwindcss')) || st.hasAttribute('data-merge-styles')) st.remove(); });
+            }
+
+            const cloneBody = clone.querySelector('body');
+            if (cloneBody) { cloneBody.classList.add('guard-active'); cloneBody.classList.remove('sim-active'); }
+
+            const stateScript = clone.querySelector('#re-standard-state');
+            if (stateScript) {
+                stateScript.textContent = `\n        window.__INITIAL_STATE__ = ${JSON.stringify(snapData, null, 4)};\n    `;
+            }
+
+            const rawBrand = document.getElementById('sim-brand-name').innerText.trim() || 're-standard';
+            const brandName = rawBrand.replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 30) || 're-standard';
+            const fileName = `${brandName}_${type === 'preset' ? 'preset' : 'production'}.html`;
+            const blob = new Blob(['<!DOCTYPE html>\n' + clone.outerHTML], { type: 'text/html;charset=utf-8' });
+
+            if (wasSim) toggleSimulator(true); if (wasDrawer) toggleDrawer(true);
+
+            const isMobileTouch = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+            if (isMobileTouch && navigator.canShare) {
+                try {
+                    const file = new File([blob], fileName, { type: 'text/html' });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({ title: `${rawBrand} — Web Prototype`, text: 're-standard PLUSで作成したWebサイトデータです。', files: [file] });
+                        showExportToast('✓ 共有メニューからファイルを出力しました');
+                        return;
+                    }
+                } catch (err) { if (err && err.name === 'AbortError') return; }
+            }
+
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+            showExportToast(`✓ 「${fileName}」を保存しました`);
+        }
+
+        function buildRoleplayOrderData() {
+            syncDOMToDataModels();
+            const brand = document.getElementById('sim-brand-name').innerText.trim();
+            const copy = document.getElementById('sim-main-copy')?.innerText.replace(/\n+/g, ' / ').trim() || '-';
+            const lead = document.getElementById('sim-lead-text')?.innerText.trim() || '-';
+            const navItems = Array.from(document.querySelectorAll('#sim-header-nav a')).map(a => a.innerText.trim()).join(' / ');
+            const sections = Array.from(document.querySelectorAll('#sortable-container .sortable-section:not(.hidden)')).map((s, i) => {
+                const h = s.querySelector('h1, h2');
+                const hTxt = h ? `「${h.innerText.replace(/\n+/g, ' ').trim()}」` : '';
+                return `${i+1}. ${s.getAttribute('data-section-name') || s.id} ${hTxt}`;
+            }).join('\n');
+            return {
+                rawSubject: `【re-standard PLUS】制作相談（${brand}）`,
+                rawBody: `re-standard 制作相談窓口 行\n\n以下の内容で制作の相談・見積もりを希望します。\n（※「プリセット保存(HTML)」または「セーブデータ出力(JSON)」で保存したファイルを添付していただくとイメージの共有がスムーズです）\n\n--------------------------------------------------\n■ 屋号・名称：\n${brand}\n\n■ ヘッダーメニュー構成：\n${navItems}\n\n■ メインコピー：\n${copy}\n\n■ 導入文：\n${lead}\n\n■ セクション構成（上から順）：\n${sections}\n\n■ スタイル設定：\n・紙色：${currentTheme} / 差し色：${currentAccent}\n・書体：${isSerif ? '明朝体' : 'ゴシック体'}\n・余白密度：${densityMode} / 角丸：${radiusMode}\n・実績タップ時の挙動：${popupMode}\n--------------------------------------------------\n`
+            };
+        }
+
+        function sendRoleplayOrder() {
+            closeAllMenus();
+            const copyLabel = document.getElementById('copy-order-btn-label');
+            if (copyLabel) copyLabel.textContent = '相談内容と宛先をコピー';
+            document.getElementById('contact-modal').classList.remove('hidden');
+            document.getElementById('contact-modal').classList.add('flex');
+        }
+        function closeContactModal() { document.getElementById('contact-modal').classList.add('hidden'); document.getElementById('contact-modal').classList.remove('flex'); }
+        async function triggerContactAction(mode) {
+            const { rawSubject, rawBody } = buildRoleplayOrderData();
+            const s = encodeURIComponent(rawSubject), b = encodeURIComponent(rawBody);
+            if (mode === 'mailto') { closeContactModal(); window.location.href = `mailto:${CONTACT_EMAIL}?subject=${s}&body=${b}`; }
+            else if (mode === 'gmail') { closeContactModal(); window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT_EMAIL)}&su=${s}&body=${b}`, '_blank', 'noopener,noreferrer'); }
+            else if (mode === 'copy') {
+                const fullText = `宛先：${CONTACT_EMAIL}\n件名：${rawSubject}\n\n${rawBody}`;
+                try {
+                    await navigator.clipboard.writeText(fullText);
+                } catch (err) {
+                    const ta = document.createElement('textarea');
+                    ta.value = fullText; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                }
+                const copyLabel = document.getElementById('copy-order-btn-label');
+                if (copyLabel) copyLabel.textContent = 'コピーしました（メールやDMに貼付可）';
+                showExportToast('✓ 相談内容をコピーしました');
+                setTimeout(closeContactModal, 900);
+            }
+        }
+
+        document.addEventListener('contextmenu', function(e) { if (!isSimMode) e.preventDefault(); });
+
+        // ==========================================================
+        // ★ 初期化実行（納品ビルド / 保存データ復元 / 初期起動の3分岐ガード）
+        // ==========================================================
+        if (isProductionBuild) {
+            // 1. 完成品（納品用）ファイルとして開かれた場合：DOM再生成を行わずスタイルとポップアップのみ有効化
+            setTheme(currentTheme, false);
+            setAccent(currentAccent, false);
+            toggleFontStyle(isSerif, false);
+            setDensity(densityMode, false);
+            setRadius(radiusMode, false);
+            applyPopupModeUI();
+            applyCloseLabelsUI();
+            syncDocumentTitle();
+        } else if (savedData || initState.mainHTML) {
+            // 2. LocalStorage または プリセット保存HTML から開かれた場合：スナップショットを完全復元
+            const targetSnap = savedData || initState;
+            applySnapshot(targetSnap);
+            historyStack = [targetSnap];
+            historyIndex = 0;
+            updateHistoryUI();
+        } else {
+            // 3. 初回起動時：初期配列からDOMを構築して履歴1件目を記録
+            setTheme(currentTheme, false);
+            setAccent(currentAccent, false);
+            toggleFontStyle(isSerif, false);
+            setDensity(densityMode, false);
+            setRadius(radiusMode, false);
+            applyPopupModeUI();
+            applyCloseLabelsUI();
+            toggleMainVisual(isMainVisualVisible, false);
+            setMainVisualRatio(mvRatio, false);
+            renderPhilosophyGrid();
+            renderWorksGrid();
+            renderSpecTable();
+            renderFooterLinks();
+            syncDocumentTitle();
+            recordHistory();
+        }
+    </script>
+</body>
+</html>
