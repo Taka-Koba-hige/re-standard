@@ -984,28 +984,6 @@
         </div>
     </div>
 
-    <!-- MODAL 3: 納品用データ書き出しパスコード認証モーダル -->
-    <div id="passcode-modal" onclick="if(event.target === this) closePasscodeModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
-        <div class="bg-canvas border border-line rounded-md max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-5 modal-enter">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-[10px] font-mono tracking-widest text-muted uppercase block">Admin Only</span>
-                    <h3 class="text-base font-medium text-ink mt-0.5">完成品（納品用）の書き出し</h3>
-                </div>
-                <button type="button" onclick="closePasscodeModal()" class="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] text-muted hover:text-ink hover:border-ink transition-colors">✕</button>
-            </div>
-            <p class="text-xs text-muted leading-relaxed">透かしやシミュレーターを除去し、外部通信不要の完全な単一HTMLとして保存するには、制作者用パスコードを入力してください。</p>
-            <div class="space-y-2">
-                <input type="password" id="passcode-input" inputmode="numeric" placeholder="Passcode" onkeydown="if(event.key==='Enter') submitPasscode()" class="w-full px-3.5 py-2.5 bg-surface border border-line rounded-md text-center font-mono text-base tracking-[0.35em] text-ink focus:outline-none focus:border-ink transition-colors">
-                <p id="passcode-error" class="hidden text-[11px] text-red-600 text-center">パスコードが正しくありません</p>
-            </div>
-            <div class="flex justify-end gap-2 pt-1">
-                <button type="button" onclick="closePasscodeModal()" class="px-4 py-2 bg-surface border border-line text-xs text-muted rounded-md hover:text-ink hover:border-ink transition-colors">キャンセル</button>
-                <button type="button" onclick="submitPasscode()" class="px-5 py-2 bg-ink text-canvas text-xs font-medium tracking-wider rounded-md hover:opacity-80 transition-opacity">保存する →</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL 4: 初期化（RESET）確認モーダル（サイトデザイン準拠・シンプル仕様） -->
     <div id="reset-modal" onclick="if(event.target === this) closeResetModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
         <div class="bg-canvas border border-line rounded-md max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-6 modal-enter">
@@ -1105,7 +1083,7 @@
                                 <button type="button" onclick="downloadCurrentHTML('preset'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between transition-colors" title="透かしとシミュレーターを残した状態で保存します（事前準備やお客様の入稿データ用）">
                                     <span>プリセット保存</span><span class="px-1.5 py-0.5 text-[10px] rounded bg-surface border border-line text-muted">一時保存</span>
                                 </button>
-                                <button type="button" onclick="requestCleanExport(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between transition-colors" title="パスコード認証後、シミュレーターや透かしを完全消去して保存します">
+                                <button type="button" onclick="downloadCurrentHTML('clean'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between transition-colors" title="シミュレーターや透かしを完全消去し、納品用の単一HTMLとして即座に保存します">
                                     <span class="font-medium text-ink">完成品を保存</span><span class="px-1.5 py-0.5 text-[10px] rounded bg-ink text-canvas font-medium">納品用</span>
                                 </button>
                             </div>
@@ -1153,7 +1131,6 @@
 
     <!-- メイン制御スクリプト -->
     <script>
-        const ADMIN_PASSCODE = '0328';
         const CONTACT_EMAIL = 're.standard.tk@gmail.com';
         const AUTOSAVE_KEY = 're_standard_autosave_v1';
 
@@ -1162,6 +1139,8 @@
         let activeSlotIndex = null;
 
         const isProductionBuild = !document.getElementById('sim-drawer-wrapper');
+        const fileEmbeddedState = window.__INITIAL_STATE__ || {};
+        const isPresetSavedFile = !!fileEmbeddedState.mainHTML;
         let savedData = null;
         if (!isProductionBuild) {
             try {
@@ -1171,7 +1150,7 @@
                 console.error("Local Storage read error:", e);
             }
         }
-        const initState = savedData || window.__INITIAL_STATE__ || {};
+        const initState = isPresetSavedFile ? fileEmbeddedState : (savedData || fileEmbeddedState);
 
         let currentTheme = initState.currentTheme || 'default';
         let isSerif = !!initState.isSerif;
@@ -1344,7 +1323,17 @@
             try {
                 localStorage.removeItem(AUTOSAVE_KEY);
             } catch(e){}
-            location.reload();
+            if (window.__MASTER_DEFAULT_STATE__) {
+                const masterSnap = JSON.parse(JSON.stringify(window.__MASTER_DEFAULT_STATE__));
+                applySnapshot(masterSnap);
+                historyStack = [masterSnap];
+                historyIndex = 0;
+                updateHistoryButtonsUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                showExportToast('✓ 初期状態（THE STANDARD）にリセットしました');
+            } else {
+                location.reload();
+            }
         }
 
         function updateHistoryButtonsUI() {
@@ -1805,7 +1794,6 @@
             saveModalEdits(true);
             document.getElementById('detail-modal').classList.add('hidden'); document.getElementById('detail-modal').classList.remove('flex');
             document.getElementById('lightbox-modal').classList.add('hidden'); document.getElementById('lightbox-modal').classList.remove('flex');
-            closePasscodeModal();
             closeResetModal();
             closeContactModal();
             activeSlotIndex = null;
@@ -1859,21 +1847,11 @@
             toastTimer = setTimeout(() => { toast.classList.add('hidden'); toast.classList.remove('flex'); }, 4000);
         }
 
-        function requestCleanExport() {
-            const modal = document.getElementById('passcode-modal'), input = document.getElementById('passcode-input'), err = document.getElementById('passcode-error');
-            if (!modal || !input) return;
-            input.value = ''; if (err) err.classList.add('hidden');
-            modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => input.focus(), 50);
-        }
-        function closePasscodeModal() { const modal = document.getElementById('passcode-modal'); if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); } }
-        function submitPasscode() {
-            const input = document.getElementById('passcode-input'), err = document.getElementById('passcode-error');
-            if (!input) return;
-            if (input.value.trim() === ADMIN_PASSCODE) { closePasscodeModal(); downloadCurrentHTML('clean'); }
-            else { if (err) err.classList.remove('hidden'); input.value = ''; input.focus(); }
-        }
-
         async function downloadCurrentHTML(exportType = 'preset') {
+            if (document.activeElement && document.activeElement !== document.body) {
+                document.activeElement.blur();
+            }
+            clearTimeout(typingDebounceTimer);
             saveModalEdits(false); syncDocumentTitle();
             const wasSimMode = isSimMode, wasDrawerOpen = isDrawerOpen;
             closeAllModals(); closeAllMenus();
@@ -1881,10 +1859,12 @@
             const liveToast = document.getElementById('export-toast'); if (liveToast) { liveToast.classList.add('hidden'); liveToast.classList.remove('flex'); }
 
             const snapData = createSnapshot();
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snapData)); } catch(e){}
+
             const clone = document.documentElement.cloneNode(true);
 
             if (exportType === 'clean') {
-                ['#sim-drawer-wrapper', '#global-watermark', '#pointer-drag-ghost', '#export-toast', '#sim-launch-cta-btn', '#passcode-modal', '#reset-modal', '#modal-edit-hint'].forEach(s => { clone.querySelectorAll(s).forEach(el => el.remove()); });
+                ['#sim-drawer-wrapper', '#global-watermark', '#pointer-drag-ghost', '#export-toast', '#sim-launch-cta-btn', '#reset-modal', '#modal-edit-hint'].forEach(s => { clone.querySelectorAll(s).forEach(el => el.remove()); });
                 clone.querySelectorAll('button[onclick*="openAndActivateSimulator"]').forEach(el => el.remove());
                 clone.querySelectorAll('.section-controls').forEach(el => el.remove());
                 clone.querySelectorAll('.sim-upload-btn').forEach(el => el.remove());
@@ -1900,12 +1880,6 @@
                 const twCdn = clone.querySelector('#tailwind-cdn-script'), twCfg = clone.querySelector('#tailwind-config-script');
                 if (twCdn) twCdn.remove(); if (twCfg) twCfg.remove();
                 clone.querySelectorAll('head style').forEach(st => { if (st.textContent && st.textContent.includes('tailwindcss')) st.remove(); });
-
-                // 納品用（clean）では完成DOMがHTML内に定着しているため、重複するHTML文字列データを削って軽量化
-                delete snapData.mainHTML;
-                delete snapData.brandHTML;
-                delete snapData.navHTML;
-                delete snapData.footerHTML;
             } else {
                 clone.querySelectorAll('head style').forEach(st => { if ((st.textContent && st.textContent.includes('tailwindcss')) || st.hasAttribute('data-merge-styles')) st.remove(); });
             }
@@ -1915,6 +1889,12 @@
 
             const stateScript = clone.querySelector('#re-standard-state');
             if (stateScript) {
+                if (exportType === 'clean') {
+                    delete snapData.mainHTML;
+                    delete snapData.brandHTML;
+                    delete snapData.navHTML;
+                    delete snapData.footerHTML;
+                }
                 stateScript.textContent = `\n        window.__INITIAL_STATE__ = ${JSON.stringify(snapData, null, 4)};\n    `;
             }
 
@@ -2055,17 +2035,22 @@ ${sectionOrder}
             }
         }
 
-        // 初期UI状態の反映（納品ビルド / 保存・プリセット復元 / 初回起動の3分岐）
+        // 初期UI状態の反映（納品ビルド / プリセット保存ファイル / 自動保存復元 / 初回起動）
         if (isProductionBuild) {
             setTheme(currentTheme, false);
             toggleFontStyle(isSerif, false);
             applyPopupModeUI();
             applyCloseLabelsUI();
             syncDocumentTitle();
-        } else if (savedData || initState.mainHTML) {
-            const targetSnap = savedData || initState;
-            applySnapshot(targetSnap);
-            historyStack = [targetSnap];
+        } else if (isPresetSavedFile) {
+            applySnapshot(fileEmbeddedState);
+            historyStack = [fileEmbeddedState];
+            historyIndex = 0;
+            updateHistoryButtonsUI();
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(fileEmbeddedState)); } catch(e){}
+        } else if (savedData && savedData.mainHTML) {
+            applySnapshot(savedData);
+            historyStack = [savedData];
             historyIndex = 0;
             updateHistoryButtonsUI();
         } else {

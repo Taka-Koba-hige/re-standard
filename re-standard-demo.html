@@ -1866,6 +1866,9 @@ ${sectionOrder}
         }
 
         function sendRoleplayOrder() {
+            if (document.activeElement && document.activeElement !== document.body) {
+                document.activeElement.blur();
+            }
             closeAllMenus();
             const modal = document.getElementById('contact-modal');
             const copyLabel = document.getElementById('copy-order-btn-label');

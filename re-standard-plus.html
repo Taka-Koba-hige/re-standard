@@ -918,28 +918,6 @@
         </div>
     </div>
 
-    <!-- MODAL 3: パスコード認証 -->
-    <div id="passcode-modal" onclick="if(event.target === this) closePasscodeModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
-        <div class="bg-canvas border border-line dyn-radius-box max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-5 modal-enter">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="text-[10px] font-mono tracking-widest text-muted uppercase block">Admin Only</span>
-                    <h3 class="text-base font-medium text-ink mt-0.5">完成品（納品用）の書き出し</h3>
-                </div>
-                <button type="button" onclick="closePasscodeModal()" class="w-6 h-6 rounded-full bg-surface border border-line flex items-center justify-center text-[10px] text-muted hover:text-ink">✕</button>
-            </div>
-            <p class="text-xs text-muted leading-relaxed">透かしやシミュレーターを除去し、外部通信不要の単一HTMLとして保存するにはパスコードを入力してください。</p>
-            <div class="space-y-2">
-                <input type="password" id="passcode-input" inputmode="numeric" placeholder="Passcode" onkeydown="if(event.key==='Enter') submitPasscode()" class="w-full px-3.5 py-2.5 bg-surface border border-line dyn-radius-box text-center font-mono text-base tracking-[0.35em] text-ink focus:outline-none focus:border-ink">
-                <p id="passcode-error" class="hidden text-[11px] text-red-600 text-center">パスコードが正しくありません</p>
-            </div>
-            <div class="flex justify-end gap-2 pt-1">
-                <button type="button" onclick="closePasscodeModal()" class="px-4 py-2 bg-surface border border-line text-xs text-muted dyn-radius-btn hover:text-ink">キャンセル</button>
-                <button type="button" onclick="submitPasscode()" class="btn-primary-accent px-5 py-2 text-xs font-medium tracking-wider dyn-radius-btn hover:opacity-85">保存する →</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL 4: リセット確認 -->
     <div id="reset-modal" onclick="if(event.target === this) closeResetModal()" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-ink/40 backdrop-blur-[2px]">
         <div class="bg-canvas border border-line dyn-radius-box max-w-sm w-full p-6 sm:p-8 shadow-xl space-y-6 modal-enter">
@@ -997,7 +975,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-2">
                     <div class="flex flex-wrap items-center gap-1.5">
                         <button id="sim-toggle-btn" onclick="toggleSimulator()" class="px-3.5 py-2 bg-canvas text-ink border border-line text-xs font-medium rounded-md shadow-sm hover:border-ink transition-colors">
-                            ✎ 試着モード：OFF
+                            ✎ 試着モード：OFF（クリックで編集開始）
                         </button>
 
                         <div class="inline-flex items-center rounded-md border border-line bg-canvas overflow-hidden shadow-sm">
@@ -1045,7 +1023,7 @@
                             <div id="save-html-menu" onclick="event.stopPropagation()" class="hidden absolute bottom-full left-0 mb-2 w-60 max-w-[calc(100vw-24px)] bg-canvas border border-line rounded-md shadow-xl p-1.5 z-50 space-y-1 text-xs">
                                 <div class="px-2.5 py-1 text-[10px] tracking-wider text-muted uppercase border-b border-line/60">Export / Save</div>
                                 <button type="button" onclick="downloadCurrentHTML('preset'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>プリセット保存（HTML）</span><span class="px-1.5 py-0.5 text-[10px] rounded bg-surface border border-line text-muted">一時保存</span></button>
-                                <button type="button" onclick="requestCleanExport(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span class="font-medium text-ink">完成品を保存（納品用）</span><span class="px-1.5 py-0.5 text-[10px] rounded bg-ink text-canvas font-medium">納品</span></button>
+                                <button type="button" onclick="downloadCurrentHTML('clean'); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between" title="シミュレーターや透かしを完全消去し、納品用の単一HTMLとして即座に保存します"><span class="font-medium text-ink">完成品を保存（納品用）</span><span class="px-1.5 py-0.5 text-[10px] rounded bg-ink text-canvas font-medium">納品用</span></button>
                                 <div class="border-t border-line/60 my-1"></div>
                                 <button type="button" onclick="exportJsonState(); closeAllMenus();" class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between"><span>セーブデータ出力 (JSON)</span><span class="font-mono text-[10px] text-muted">↓</span></button>
                                 <label class="w-full text-left px-2.5 py-2 rounded hover:bg-surface flex items-center justify-between cursor-pointer"><span>セーブデータ読込 (JSON)</span><span class="font-mono text-[10px] text-muted">↑</span><input type="file" accept=".json" class="hidden" onchange="importJsonState(event)"></label>
@@ -1145,7 +1123,6 @@
 
     <!-- MAIN ENGINE SCRIPT -->
     <script>
-        const ADMIN_PASSCODE = '0328';
         const CONTACT_EMAIL = 're.standard.tk@gmail.com';
         const AUTOSAVE_KEY = 're_standard_plus_autosave_v3';
 
@@ -1155,6 +1132,8 @@
         let activeLinkTarget = null;
 
         const isProductionBuild = !document.getElementById('sim-drawer-wrapper');
+        const fileEmbeddedState = window.__INITIAL_STATE__ || {};
+        const isPresetSavedFile = !!fileEmbeddedState.mainHTML;
         let savedData = null;
         if (!isProductionBuild) {
             try {
@@ -1164,7 +1143,7 @@
                 console.error("Local Storage read error:", e);
             }
         }
-        const initState = savedData || window.__INITIAL_STATE__ || {};
+        const initState = isPresetSavedFile ? fileEmbeddedState : (savedData || fileEmbeddedState);
 
         let currentTheme = initState.currentTheme || 'default';
         let currentAccent = initState.currentAccent || 'default';
@@ -1586,12 +1565,12 @@
             const b = document.body, btn = document.getElementById('sim-toggle-btn'), bg = document.getElementById('drawer-badge'), wm = document.getElementById('global-watermark');
             if (isSimMode) {
                 b.classList.add('sim-active'); b.classList.remove('guard-active');
-                if (btn) { btn.textContent = '● 試着モード：ON（文字・画像・並び替え可）'; btn.classList.add('bg-ink', 'text-canvas'); btn.classList.remove('bg-canvas', 'text-ink'); }
+                if (btn) { btn.textContent = '● 試着モード：ON（全テキスト・画像・⠿移動が可能）'; btn.classList.add('bg-ink', 'text-canvas'); btn.classList.remove('bg-canvas', 'text-ink'); }
                 if (bg) bg.classList.replace('bg-muted/40', 'bg-emerald-500');
                 if (wm) wm.classList.remove('hidden');
             } else {
                 b.classList.remove('sim-active'); b.classList.add('guard-active');
-                if (btn) { btn.textContent = '✎ 試着モード：OFF'; btn.classList.remove('bg-ink', 'text-canvas'); btn.classList.add('bg-canvas', 'text-ink'); }
+                if (btn) { btn.textContent = '✎ 試着モード：OFF（クリックで編集開始）'; btn.classList.remove('bg-ink', 'text-canvas'); btn.classList.add('bg-canvas', 'text-ink'); }
                 if (bg) bg.classList.replace('bg-emerald-500', 'bg-muted/40');
                 if (wm) wm.classList.add('hidden');
                 closeLinkEditor();
@@ -2289,10 +2268,10 @@
                 if (leadEl) leadEl.innerText = '無垢の木と鉄、自然素材が持つ本来の質感を活かした空間設計と家具製作。10年後、20年後にいっそう美しく佇むものづくりを追求しています。';
             } else if (type === 'corporate') {
                 setTheme('default', false); setAccent('indigo', false); toggleFontStyle(false, false); setRadius('normal', false); setDensity('normal', false);
-                document.getElementById('sim-brand-name').innerText = 'CRASARC PARTNERS';
-                if (subEl) subEl.innerText = 'Real Estate & Urban Consulting';
+                document.getElementById('sim-brand-name').innerText = 'HORIZON PARTNERS';
+                if (subEl) subEl.innerText = 'Urban Planning & Asset Consulting';
                 if (copyEl) copyEl.innerHTML = '確かな視点と誠実な設計で、<br>資産と暮らしの未来を支える。';
-                if (leadEl) leadEl.innerText = '京都・大阪エリアを中心に、不動産の有効活用から建築企画、長期的な資産管理まで、一気通貫のパートナーシップでお客様の課題に応えます。';
+                if (leadEl) leadEl.innerText = '京都・大阪エリアを中心に、空間の有効活用から建築企画、長期的な資産管理まで、一気通貫のパートナーシップでお客様の課題に応えます。';
             } else {
                 setTheme('default', false); setAccent('default', false); toggleFontStyle(false, false); setRadius('normal', false); setDensity('normal', false);
                 document.getElementById('sim-brand-name').innerText = 'THE STANDARD';
@@ -2506,7 +2485,7 @@
 
         function closeAllModals() {
             saveModalEdits(true);
-            ['detail-modal', 'lightbox-modal', 'passcode-modal', 'reset-modal', 'contact-modal'].forEach(id => {
+            ['detail-modal', 'lightbox-modal', 'reset-modal', 'contact-modal'].forEach(id => {
                 const m = document.getElementById(id);
                 if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
             });
@@ -2541,7 +2520,11 @@
         }
 
         function exportJsonState() {
+            if (document.activeElement && document.activeElement !== document.body) {
+                document.activeElement.blur();
+            }
             const snap = createSnapshot();
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snap)); } catch(e){}
             const brandName = (document.getElementById('sim-brand-name').innerText.trim() || 're_standard_plus').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 30);
             const blob = new Blob([JSON.stringify(snap, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -2566,18 +2549,6 @@
             r.readAsText(f);
         }
 
-        function requestCleanExport() {
-            const m = document.getElementById('passcode-modal'), input = document.getElementById('passcode-input'), err = document.getElementById('passcode-error');
-            input.value = ''; err.classList.add('hidden');
-            m.classList.remove('hidden'); m.classList.add('flex'); setTimeout(() => input.focus(), 50);
-        }
-        function closePasscodeModal() { document.getElementById('passcode-modal').classList.add('hidden'); document.getElementById('passcode-modal').classList.remove('flex'); }
-        function submitPasscode() {
-            const input = document.getElementById('passcode-input'), err = document.getElementById('passcode-error');
-            if (input.value.trim() === ADMIN_PASSCODE) { closePasscodeModal(); downloadCurrentHTML('clean'); }
-            else { err.classList.remove('hidden'); input.value = ''; input.focus(); }
-        }
-
         let toastTimer = null;
         function showExportToast(msg) {
             const t = document.getElementById('export-toast'), txt = document.getElementById('export-toast-text');
@@ -2588,6 +2559,10 @@
         }
 
         async function downloadCurrentHTML(type = 'preset') {
+            if (document.activeElement && document.activeElement !== document.body) {
+                document.activeElement.blur();
+            }
+            clearTimeout(typingTimer);
             saveModalEdits(false); syncDOMToDataModels(); syncDocumentTitle();
             const wasSim = isSimMode, wasDrawer = isDrawerOpen;
             closeAllModals(); closeAllMenus(); closeLinkEditor();
@@ -2596,10 +2571,11 @@
             if (liveToast) { liveToast.classList.add('hidden'); liveToast.classList.remove('flex'); }
 
             const snapData = createSnapshot();
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snapData)); } catch(e){}
             const clone = document.documentElement.cloneNode(true);
 
             if (type === 'clean') {
-                ['#sim-drawer-wrapper', '#global-watermark', '#pointer-drag-ghost', '#export-toast', '#sim-launch-cta-btn', '#passcode-modal', '#reset-modal', '#link-editor-popover', '#modal-edit-hint'].forEach(s => clone.querySelectorAll(s).forEach(el => el.remove()));
+                ['#sim-drawer-wrapper', '#global-watermark', '#pointer-drag-ghost', '#export-toast', '#sim-launch-cta-btn', '#reset-modal', '#link-editor-popover', '#modal-edit-hint'].forEach(s => clone.querySelectorAll(s).forEach(el => el.remove()));
                 clone.querySelectorAll('button[onclick*="openAndActivateSimulator"]').forEach(el => el.remove());
                 clone.querySelectorAll('.section-controls, .sim-upload-btn, .sim-only-item').forEach(el => el.remove());
                 clone.querySelectorAll('.img-watermark').forEach(el => el.classList.remove('img-watermark'));
@@ -2708,11 +2684,17 @@
             applyPopupModeUI();
             applyCloseLabelsUI();
             syncDocumentTitle();
-        } else if (savedData || initState.mainHTML) {
-            // 2. LocalStorage または プリセット保存HTML から開かれた場合：スナップショットを完全復元
-            const targetSnap = savedData || initState;
-            applySnapshot(targetSnap);
-            historyStack = [targetSnap];
+        } else if (isPresetSavedFile) {
+            // 2a. プリセット保存HTML から開かれた場合：ファイル内スナップショットを最優先で復元
+            applySnapshot(fileEmbeddedState);
+            historyStack = [fileEmbeddedState];
+            historyIndex = 0;
+            updateHistoryUI();
+            try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(fileEmbeddedState)); } catch(e){}
+        } else if (savedData && savedData.mainHTML) {
+            // 2b. LocalStorage から自動復元
+            applySnapshot(savedData);
+            historyStack = [savedData];
             historyIndex = 0;
             updateHistoryUI();
         } else {
