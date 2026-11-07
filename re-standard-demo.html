@@ -589,7 +589,7 @@
 
     <div id="export-toast" class="fixed top-20 inset-x-4 z-[70] hidden pointer-events-none justify-center transition-opacity duration-300">
         <div class="bg-ink text-canvas px-4 py-3 rounded-md shadow-2xl text-xs tracking-wider flex items-center gap-2.5 max-w-full">
-            <span id="export-toast-text" class="truncate">コピーしました</span>
+            <span id="export-toast-text" class="leading-relaxed" style="word-break: break-word; overflow-wrap: anywhere;">コピーしました</span>
         </div>
     </div>
 
@@ -1373,17 +1373,17 @@
 
         function adjustPopupAlignment(btnEl, menuEl) {
             if (!btnEl || !menuEl) return;
-            menuEl.style.left = '0px'; menuEl.style.right = 'auto';
-            const btnRect = btnEl.getBoundingClientRect();
-            const menuWidth = menuEl.offsetWidth || 220;
-            const vw = window.innerWidth;
+            menuEl.style.left = '0px';
+            menuEl.style.right = 'auto';
+            const vw = document.documentElement.clientWidth || window.innerWidth;
             const margin = 12;
-            if (btnRect.left + menuWidth > vw - margin) {
-                if (btnRect.right - menuWidth >= margin) { menuEl.style.left = 'auto'; menuEl.style.right = '0px'; }
-                else {
-                    const offsetLeft = Math.max(margin - btnRect.left, vw - margin - menuWidth - btnRect.left);
-                    menuEl.style.left = `${offsetLeft}px`; menuEl.style.right = 'auto';
-                }
+            const menuRect = menuEl.getBoundingClientRect();
+            if (menuRect.right > vw - margin) {
+                const shiftLeft = (vw - margin) - menuRect.right;
+                const maxShiftLeft = margin - menuRect.left;
+                menuEl.style.left = `${Math.round(Math.max(shiftLeft, maxShiftLeft))}px`;
+            } else if (menuRect.left < margin) {
+                menuEl.style.left = `${Math.round(margin - menuRect.left)}px`;
             }
         }
 

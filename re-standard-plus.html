@@ -616,7 +616,7 @@
     <!-- トースト通知 -->
     <div id="export-toast" class="fixed top-20 inset-x-4 z-[70] hidden pointer-events-none justify-center transition-opacity duration-300">
         <div class="btn-primary-accent px-4 py-3 dyn-radius-box shadow-2xl text-xs tracking-wider flex items-center gap-2.5 max-w-full">
-            <span id="export-toast-text" class="truncate">ファイルを保存しました</span>
+            <span id="export-toast-text" class="leading-relaxed" style="word-break: break-word; overflow-wrap: anywhere;">ファイルを保存しました</span>
         </div>
     </div>
 
@@ -1535,16 +1535,57 @@
             else { w.classList.remove('drawer-open'); w.classList.add('drawer-closed'); a.textContent = '▲'; closeAllMenus(); }
         }
 
-        function toggleAddMenu(e) { e.stopPropagation(); toggleMenu('add-section-menu'); }
-        function toggleSaveMenu(e) { e.stopPropagation(); toggleMenu('save-html-menu'); }
-        function togglePresetMenu(e) { e.stopPropagation(); toggleMenu('preset-menu'); }
+        function adjustPopupAlignment(btnEl, menuEl) {
+            if (!btnEl || !menuEl) return;
+            menuEl.style.left = '0px';
+            menuEl.style.right = 'auto';
+            const cw = document.documentElement.clientWidth || window.innerWidth;
+            const iw = window.innerWidth || cw;
+            const vvw = (window.visualViewport && window.visualViewport.width) ? window.visualViewport.width : cw;
+            const vw = Math.min(cw, iw, vvw);
+            const margin = 12;
+            const menuRect = menuEl.getBoundingClientRect();
+            if (menuRect.right > vw - margin) {
+                const shiftLeft = (vw - margin) - menuRect.right;
+                const maxShiftLeft = margin - menuRect.left;
+                menuEl.style.left = `${Math.round(Math.max(shiftLeft, maxShiftLeft))}px`;
+            } else if (menuRect.left < margin) {
+                menuEl.style.left = `${Math.round(margin - menuRect.left)}px`;
+            }
+        }
 
-        function toggleMenu(menuId) {
+        function toggleAddMenu(e) { e.stopPropagation(); toggleMenu('add-section-menu', 'add-menu-btn'); }
+        function toggleSaveMenu(e) { e.stopPropagation(); toggleMenu('save-html-menu', 'save-menu-btn'); }
+        function togglePresetMenu(e) { e.stopPropagation(); toggleMenu('preset-menu', 'preset-menu-btn'); }
+
+        function toggleMenu(menuId, btnId) {
             ['add-section-menu', 'save-html-menu', 'preset-menu'].forEach(id => {
                 const m = document.getElementById(id);
-                if (m) m.classList.toggle('hidden', id !== menuId ? true : !m.classList.contains('hidden'));
+                if (!m) return;
+                if (id !== menuId) {
+                    m.classList.add('hidden');
+                } else {
+                    const willOpen = m.classList.contains('hidden');
+                    m.classList.toggle('hidden');
+                    if (willOpen) {
+                        const btnEl = document.getElementById(btnId);
+                        adjustPopupAlignment(btnEl, m);
+                    }
+                }
             });
         }
+
+        window.addEventListener('resize', function() {
+            const pairs = [
+                ['add-menu-btn', 'add-section-menu'],
+                ['save-menu-btn', 'save-html-menu'],
+                ['preset-menu-btn', 'preset-menu']
+            ];
+            pairs.forEach(([bId, mId]) => {
+                const b = document.getElementById(bId), m = document.getElementById(mId);
+                if (b && m && !m.classList.contains('hidden')) adjustPopupAlignment(b, m);
+            });
+        });
         function closeAllMenus() {
             ['add-section-menu', 'save-html-menu', 'preset-menu'].forEach(id => {
                 const m = document.getElementById(id); if (m) m.classList.add('hidden');
